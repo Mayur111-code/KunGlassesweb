@@ -465,4 +465,4 @@ export function Footer() {
     </footer>
   );
 }
-```
+
