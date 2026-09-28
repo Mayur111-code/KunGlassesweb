@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Environment files (never commit real credentials)
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+.next/
+out/
+build/
+
+# Runtime artifacts
+*.pid
+*.log
+npm-debug.log*
+logs/
+
+# Local uploads (media is stored in ImageKit)
+uploads/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Platform build metadata
+.vercel/
+.render/

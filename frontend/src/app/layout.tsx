@@ -16,13 +16,20 @@ const outfit = Outfit({
   display: 'swap',
 });
 
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'KUN Glass & Aluminium — Premium Glass & Aluminium Solutions in Nashik',
     template: '%s | KUN Glass & Aluminium',
   },
   description:
     'KUN Glass & Aluminium delivers premium glass, aluminium, ACP cladding, partition, sliding windows and interior solutions across Nashik, Maharashtra since 2010.',
+  // NOTE: no root-level `alternates.canonical` here. Next.js inherits metadata
+  // from the root layout, so a '/' canonical would incorrectly point every
+  // child page (services, projects, about, ...) back at the homepage. Each
+  // page declares its own canonical, or relies on the resolved route path.
   icons: { icon: '/logo.png' },
   keywords: [
     'glass and aluminium nashik',
@@ -40,6 +47,7 @@ export const metadata: Metadata = {
     title: 'KUN Glass & Aluminium — Premium Glass & Aluminium Solutions',
     description:
       'One Stop Solution For Glass & Aluminium Works. Trusted since 2010 for premium residential, commercial and industrial projects in Nashik.',
+    url: '/',
   },
   twitter: {
     card: 'summary_large_image',
@@ -59,7 +67,7 @@ const jsonLd = {
   '@type': 'LocalBusiness',
   name: 'KUN Glass & Aluminium',
   description: 'Premium glass and aluminium solutions for residential, commercial and industrial spaces.',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://kunglass.com',
+  url: SITE_URL,
   telephone: ['+919823097867', '+919595343528'],
   email: 'kunglass@gmail.com',
   address: {
@@ -89,7 +97,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="icon" href="/logo.png" type="image/jpeg" />
         <meta name="theme-color" content="#0e1627" />
-        <meta name="google-site-verification" content="" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

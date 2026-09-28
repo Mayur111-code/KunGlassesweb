@@ -1,8 +1,27 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+
+/**
+ * A production build must never silently talk to localhost: that would make the
+ * live site look "up" with no data and no working admin login. Fail loudly at
+ * request time instead so the misconfiguration is obvious.
+ */
+const API_BASE_URL = (() => {
+  if (configuredApiUrl) return configuredApiUrl;
+  if (process.env.NODE_ENV === 'production') {
+    return '';
+  }
+  return 'http://localhost:5000';
+})();
+
+const missingApiUrlError = (): Error =>
+  new Error(
+    'NEXT_PUBLIC_API_URL is not configured. Set it to your deployed API origin (e.g. https://api.example.com) and rebuild.',
+  );
 
 export const getApiUrl = (path: string): string => {
   if (path.startsWith('http')) return path;
-  return `${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
+  if (!API_BASE_URL) throw missingApiUrlError();
+  return `${API_BASE_URL}${path.startsWith('/') ? `/${path.slice(1)}` : `/${path}`}`;
 };
 
 interface RequestOptions extends RequestInit {

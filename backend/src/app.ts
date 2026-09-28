@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-import { APP } from './config/constants';
+import { ALLOWED_ORIGINS } from './config/constants';
 import { AppError } from './utils/AppError';
 
 import authRoutes from './routes/auth.routes';
@@ -24,9 +24,7 @@ app.set('trust proxy', 1);
 
 app.use(helmet());
 
-const allowedOrigins = [
-  APP.CLIENT_URL.replace(/\/$/, ''),
-];
+const allowedOrigins = ALLOWED_ORIGINS;
 
 app.use(
   cors({
@@ -36,7 +34,7 @@ app.use(
       if (allowedOrigins.includes(cleaned)) {
         return callback(null, true);
       }
-      return callback(new Error('Not allowed by CORS'));
+      return callback(new AppError('Not allowed by CORS', 403));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

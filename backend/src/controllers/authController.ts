@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User, { type IUser } from '../models/User';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
-import { JWT, JWT_SECRET } from '../config/constants';
+import { JWT, JWT_SECRET, AUTH_COOKIE_OPTIONS } from '../config/constants';
 import { type AugmentedRequest } from '../middleware/authMiddleware';
 
 interface FailedAttempts {
@@ -52,10 +52,7 @@ const signToken = (userId: string): string => {
 const setAuthCookie = (res: Response, token: string): void => {
   const maxAge = JWT.COOKIE_EXPIRES_IN_DAYS * 24 * 60 * 60 * 1000;
   res.cookie(JWT.COOKIE_NAME, token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
+    ...AUTH_COOKIE_OPTIONS,
     maxAge,
   });
 };
@@ -116,12 +113,7 @@ export const login = catchAsync(async (req: Request, res: Response, next: NextFu
 });
 
 export const logout = catchAsync(async (_req: Request, res: Response): Promise<void> => {
-  res.clearCookie(JWT.COOKIE_NAME, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-  });
+  res.clearCookie(JWT.COOKIE_NAME, { ...AUTH_COOKIE_OPTIONS });
 
   res.status(200).json({
     success: true,

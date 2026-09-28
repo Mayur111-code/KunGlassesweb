@@ -1,16 +1,16 @@
 # KUN Glass & Aluminium — Website & CMS
 
-Production-ready full-stack website with an admin CMS for **KUN Glass & Aluminium**, a glass, aluminium and ACP fabrication company in Nashik, Maharashtra.
+Full-stack website with an admin CMS for **KUN Glass & Aluminium**, a glass, aluminium and ACP fabrication company in Nashik, Maharashtra.
 
 ## Stack
 
-| Layer    | Tech                                          |
-| -------- | --------------------------------------------- |
-| Frontend | Next.js 14 (App Router) + TypeScript + Tailwind CSS + Framer Motion |
-| Backend  | Node.js + Express + TypeScript                 |
-| Database | MongoDB (Mongoose 8)                           |
-| Auth     | JWT in HTTP-only cookie + Authorization header  |
-| Media    | Multer + ImageKit                              |
+| Layer    | Tech                                                     |
+| -------- | -------------------------------------------------------- |
+| Frontend | Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS + Framer Motion |
+| Backend  | Node.js + Express 4 + TypeScript                          |
+| Database | MongoDB Atlas (Mongoose 8)                                |
+| Auth     | JWT in HTTP-only cookie (+ Authorization header fallback)  |
+| Media    | Multer (memory) + ImageKit                                |
 
 ## Project Structure
 
@@ -20,7 +20,18 @@ kun glasses/
 └── frontend/    Next.js website + admin panel
 ```
 
-## Getting Started
+## Architecture
+
+```
+VISITOR → Vercel (frontend) → Render (API) → MongoDB Atlas
+ADMIN   → Vercel (frontend) → Render (API) → ImageKit → MongoDB Atlas
+```
+
+The frontend and API are on **different domains**, so the auth cookie is issued with
+`SameSite=None; Secure` in production and `SameSite=Lax` in local development.
+CORS is restricted to the origin(s) listed in `CLIENT_URL`.
+
+## Getting Started (Local)
 
 ### Prerequisites
 - Node.js 18+
@@ -32,9 +43,18 @@ kun glasses/
 cd backend
 npm install
 copy .env.example .env        # Windows (or: cp .env.example .env)
-npm run seed                  # seed admin, services, clients, projects, settings
 npm run dev                   # starts API on http://localhost:5000
 ```
+
+Optional — create the first admin (required before you can log in):
+
+```bash
+# add SEED_ADMIN_PASSWORD=<strong-password> to backend/.env first
+npm run seed
+```
+
+The seeder **refuses to run without `SEED_ADMIN_PASSWORD`**, never overwrites an
+existing admin, and is never executed automatically on server start.
 
 ### 2. Frontend
 
@@ -47,31 +67,32 @@ npm run dev                   # starts website on http://localhost:3000
 
 Open http://localhost:3000 for the public site and http://localhost:3000/admin for the CMS.
 
-## Default Admin Login (from seed)
-
-```
-Email:    admin@kunglass.com
-Password: admin@123
-```
-
-> Change this password immediately after first login.
-
 ## Environment Variables
 
-**Backend (`backend/.env`)**
-- `PORT` — API port (default 5000)
-- `CLIENT_URL` — allowed CORS origin (default `http://localhost:3000`)
-- `MONGODB_URI` — MongoDB connection string
-- `JWT_SECRET`, `JWT_EXPIRES_IN`, `JWT_COOKIE_EXPIRES_IN`
-- `BCRYPT_ROUNDS`
-- `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT` — image uploads
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` — enquiry email notifications
-- `FROM_EMAIL`, `ADMIN_NOTIFICATION_EMAIL`
+**Backend (`backend/.env`)** — see `backend/.env.example` for the full annotated list.
+
+| Variable | Required in production | Purpose |
+| --- | --- | --- |
+| `NODE_ENV` | yes | `production` |
+| `PORT` | provided by Render | API port |
+| `CLIENT_URL` | **yes** | Allowed CORS origin(s), comma-separated |
+| `MONGODB_URI` | **yes** | MongoDB Atlas connection string |
+| `JWT_SECRET` | **yes** | Long random string (e.g. `openssl rand -base64 48`) |
+| `JWT_EXPIRES_IN` / `JWT_COOKIE_EXPIRES_IN` | no | Token lifetime (default 7d) |
+| `IMAGEKIT_PUBLIC_KEY` / `IMAGEKIT_PRIVATE_KEY` / `IMAGEKIT_URL_ENDPOINT` | yes for uploads | ImageKit |
+| `SMTP_*`, `FROM_EMAIL`, `ADMIN_NOTIFICATION_EMAIL` | no | Enquiry emails (skipped if unset) |
+| `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | only for seeding | First admin |
+
+The API fails fast at boot if `JWT_SECRET`, `CLIENT_URL` or `MONGODB_URI` are missing
+in production, so a misconfigured deploy never half-starts.
 
 **Frontend (`frontend/.env`)**
-- `NEXT_PUBLIC_API_URL` — backend base URL (default `http://localhost:5000`)
-- `NEXT_PUBLIC_SITE_URL` — site canonical URL
-- `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` — ImageKit URL endpoint
+
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_API_URL` | Backend base URL, e.g. `https://<your-api>.onrender.com` |
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL (used for metadata, sitemap, robots) |
+| `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` | ImageKit URL endpoint |
 
 ## Roles
 
@@ -81,24 +102,71 @@ Password: admin@123
 
 ## Scripts
 
-| Command         | Where      | Purpose                             |
-| --------------- | ---------- | ----------------------------------- |
-| `npm run dev`   | backend    | Start API (ts-node-dev)             |
-| `npm run seed`  | backend    | Seed database with demo content      |
-| `npm run build` / `npx tsc` | backend | Compile API to `dist/`   |
-| `npm run dev`   | frontend   | Start Next.js dev server             |
-| `npm run build` | frontend   | Production build                     |
+| Command | Where | Purpose |
+| --- | --- | --- |
+| `npm run dev` | backend | Start API with hot reload |
+| `npm run build` | backend | Compile TypeScript to `dist/` |
+| `npm start` | backend | Run the compiled production server |
+| `npm run seed` | backend | One-time controlled seeding |
+| `npm run dev` | frontend | Start Next.js dev server |
+| `npm run build` | frontend | Production build (includes TypeScript checks) |
+| `npm run typecheck` | frontend | TypeScript only, no build |
+| `npm start` | frontend | Serve the production build |
 
 ## Public API Endpoints
 
+- `GET /api/health` — health check (used by Render)
 - `GET /api/settings/public` — site settings + contact methods (drives Navbar/Footer/Contact)
 - `GET /api/services/public`, `GET /api/services/slug/:slug`
 - `GET /api/projects/public`, `GET /api/projects/slug/:slug`
 - `GET /api/clients/public`
 - `POST /api/enquiries` — public enquiry form
 
+Admin mutations (POST/PUT/PATCH/DELETE) all require an authenticated, role-authorised session.
+
+## Deployment Checklist
+
+### Backend — Render
+
+- [ ] Repository connected, **Root Directory = `backend`**
+- [ ] Build command: `npm install && npm run build`
+- [ ] Start command: `npm start` (never `npm run dev`)
+- [ ] Health check path: `/api/health`
+- [ ] `NODE_ENV=production`
+- [ ] `PORT` — leave unset (Render injects it)
+- [ ] `MONGODB_URI` = MongoDB Atlas URI
+- [ ] `JWT_SECRET` = strong random value
+- [ ] `CLIENT_URL` = the Vercel frontend URL
+- [ ] `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT`
+- [ ] `SMTP_*`, `FROM_EMAIL`, `ADMIN_NOTIFICATION_EMAIL` (optional)
+- [ ] Seed the first admin once (locally or via a one-off shell) — not on every restart
+
+### Frontend — Vercel
+
+- [ ] Repository connected, **Root Directory = `frontend`**
+- [ ] Framework preset: Next.js (auto-detected)
+- [ ] `NEXT_PUBLIC_API_URL` = `https://<your-api>.onrender.com` (no trailing slash)
+- [ ] `NEXT_PUBLIC_SITE_URL` = `https://<your-app>.vercel.app`
+- [ ] `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT`
+- [ ] Production build succeeds (`npm run build`)
+- [ ] Redirect `NEXT_PUBLIC_API_URL` changes require a redeploy
+
+### Database — MongoDB Atlas
+
+- [ ] Cluster created
+- [ ] Database user created with read/write access
+- [ ] IP access list allows Render (or `0.0.0.0/0`)
+- [ ] Production URI stored in Render as `MONGODB_URI`
+
+### ImageKit
+
+- [ ] Public key, private key and URL endpoint set
+- [ ] Upload tested from Admin → Media
+- [ ] Images render on the public site
+
 ## Notes
 
-- Address is managed from **Admin → Settings** (contact methods, seo, socials, whatsapp, footer).
-- Sample projects, services and clients are seeded for demonstration.
-- Email/SMTP and ImageKit are env-configured; without credentials the app still works with image uploads unavailable and notifications skipped.
+- Address, phone, email and social links are managed from **Admin → Settings**.
+- Project cover/gallery images are separate from global page heroes.
+- Both ImageKit uploads and external HTTPS image URLs are supported; galleries may mix both.
+- SMTP and ImageKit are optional: without them the site still runs (uploads disabled, notifications skipped).

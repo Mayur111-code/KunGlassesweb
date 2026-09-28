@@ -33,10 +33,25 @@ export const SORT = {
   DEFAULT_SORT_DIRECTION: -1,
 } as const;
 
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
 export const JWT = {
   COOKIE_NAME: 'kun_glass_token',
   EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? '7d',
   COOKIE_EXPIRES_IN_DAYS: Number(process.env.JWT_COOKIE_EXPIRES_IN ?? 7),
+} as const;
+
+/**
+ * The API (Render) and the frontend (Vercel) are deployed on different domains,
+ * so the auth cookie is a cross-site cookie in production and therefore requires
+ * SameSite=None + Secure. Localhost development keeps SameSite=Lax so the cookie
+ * still works over plain http://localhost.
+ */
+export const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  sameSite: (IS_PRODUCTION ? 'none' : 'lax') as 'none' | 'lax',
+  secure: IS_PRODUCTION,
+  path: '/',
 } as const;
 
 const configuredJwtSecret = process.env.JWT_SECRET;
@@ -48,11 +63,28 @@ export const JWT_SECRET: string = configuredJwtSecret;
 export const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS ?? 10);
 
 const configuredClientUrl = process.env.CLIENT_URL;
-if (!configuredClientUrl && process.env.NODE_ENV === 'production') {
+if (!configuredClientUrl && IS_PRODUCTION) {
   throw new Error('CLIENT_URL must be configured in production.');
 }
 
-export const DATABASE_URI = process.env.MONGODB_URI ?? (process.env.NODE_ENV === 'production'
+/**
+ * CLIENT_URL may be a comma-separated list so preview deployments can be allowed.
+ * Localhost origins are appended automatically outside production.
+ */
+export const ALLOWED_ORIGINS: string[] = (configuredClientUrl ?? 'http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
+if (!IS_PRODUCTION) {
+  for (const localOrigin of ['http://localhost:3000', 'http://127.0.0.1:3000']) {
+    if (!ALLOWED_ORIGINS.includes(localOrigin)) {
+      ALLOWED_ORIGINS.push(localOrigin);
+    }
+  }
+}
+
+export const DATABASE_URI = process.env.MONGODB_URI ?? (IS_PRODUCTION
   ? (() => {
       throw new Error('MONGODB_URI must be configured in production.');
     })()

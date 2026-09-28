@@ -7,7 +7,12 @@ import Client from './models/Client';
 import ContactMethod from './models/ContactMethod';
 import SiteSettings from './models/SiteSettings';
 
-const DB_URI = process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/kun_glass';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const DB_URI = process.env.MONGODB_URI ?? (IS_PRODUCTION
+  ? (() => {
+      throw new Error('MONGODB_URI must be configured to run the seeder in production.');
+    })()
+  : 'mongodb://127.0.0.1:27017/kun_glass');
 
 // const SERVICES = [
 //   {
@@ -213,22 +218,39 @@ const DB_URI = process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/kun_glass';
 //   { type: 'email', value: 'kunglass@gmail.com', label: 'Email', isPrimary: true, displayOrder: 1 },
 // ];
 
+const SEED_ADMIN_EMAIL = (process.env.SEED_ADMIN_EMAIL ?? 'admin@kunglass.com').toLowerCase();
+const SEED_ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD;
+
 const seed = async (): Promise<void> => {
   try {
+    if (!SEED_ADMIN_PASSWORD) {
+      throw new Error(
+        'SEED_ADMIN_PASSWORD must be set before running the seeder. No default password is used.'
+      );
+    }
+
     await mongoose.connect(DB_URI);
     console.log('Connected to MongoDB');
 
-    await User.deleteMany({});
-    const [superAdmin] = await User.create([
-      {
-        name: 'KUN Administrator',
-        email: 'admin@kunglass.com',
-        password: 'admin@123',
-        role: 'SUPER_ADMIN',
-        isActive: true,
-      },
-    ]);
-    console.log('Seeded super admin: admin@kunglass.com / admin@123');
+    const existingAdmin = await User.findOne({ email: SEED_ADMIN_EMAIL });
+    if (existingAdmin) {
+      console.log(
+        `Super admin "${SEED_ADMIN_EMAIL}" already exists — leaving the existing account untouched.`
+      );
+      await mongoose.disconnect();
+      return;
+    }
+
+    await User.create({
+      name: 'KUN Administrator',
+      email: SEED_ADMIN_EMAIL,
+      password: SEED_ADMIN_PASSWORD,
+      role: 'SUPER_ADMIN',
+      isActive: true,
+    });
+    console.log(
+      `Seeded super admin: ${SEED_ADMIN_EMAIL}. Sign in and change this password immediately.`
+    );
 
     // await Service.deleteMany({});
     // await Service.create(SERVICES);
