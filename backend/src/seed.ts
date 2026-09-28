@@ -7,8 +7,7 @@ import Project from './models/Project';
 import Client from './models/Client';
 import ContactMethod from './models/ContactMethod';
 import SiteSettings from './models/SiteSettings';
-
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+import { IS_PRODUCTION } from './config/constants';
 
 const DB_URI =
   process.env.MONGODB_URI ??
@@ -105,6 +104,12 @@ const SEED_ADMIN_EMAIL = (
 
 const SEED_ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD;
 
+/**
+ * Password resets are opt-in only. Without this flag the seeder never changes
+ * an existing admin's password, so it is safe to run repeatedly.
+ */
+const SEED_ADMIN_RESET_PASSWORD = process.env.SEED_ADMIN_RESET_PASSWORD === 'true';
+
 /*
 |--------------------------------------------------------------------------
 | Seeder
@@ -150,20 +155,40 @@ const seed = async (): Promise<void> => {
       |--------------------------------------------------------------------------
       | Existing admin found
       |--------------------------------------------------------------------------
-      | IMPORTANT:
-      | We update the password here so the production admin password
-      | can be reset through SEED_ADMIN_PASSWORD.
+      |
+      | The account is left COMPLETELY untouched by default. Previously this
+      | block overwrote the password on every run, which meant every restart
+      | silently reset the production admin password.
+      |
+      | Resetting is now an explicit, opt-in operation:
+      |     SEED_ADMIN_RESET_PASSWORD=true npm run seed
+      |
       */
 
-      existingAdmin.password = SEED_ADMIN_PASSWORD;
-      existingAdmin.role = 'SUPER_ADMIN';
-      existingAdmin.isActive = true;
+      if (SEED_ADMIN_RESET_PASSWORD) {
+        existingAdmin.password = SEED_ADMIN_PASSWORD;
+        existingAdmin.isActive = true;
 
-      await existingAdmin.save();
+        await existingAdmin.save();
 
-      console.log(
-        `Super admin "${SEED_ADMIN_EMAIL}" already exists — password and account status updated.`
-      );
+        console.log(
+          `Super admin "${SEED_ADMIN_EMAIL}" password reset (SEED_ADMIN_RESET_PASSWORD=true).`
+        );
+      } else {
+        // Ensure access is never lost, but never touch the password.
+        if (!existingAdmin.isActive) {
+          existingAdmin.isActive = true;
+          await existingAdmin.save({ validateBeforeSave: false });
+          console.log(`Super admin "${SEED_ADMIN_EMAIL}" was inactive and has been reactivated.`);
+        } else {
+          console.log(
+            `Super admin "${SEED_ADMIN_EMAIL}" already exists - left unchanged.`
+          );
+          console.log(
+            'To reset the password on purpose, re-run with SEED_ADMIN_RESET_PASSWORD=true.'
+          );
+        }
+      }
     } else {
       /*
       |--------------------------------------------------------------------------

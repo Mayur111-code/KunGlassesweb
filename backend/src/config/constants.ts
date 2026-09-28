@@ -33,7 +33,26 @@ export const SORT = {
   DEFAULT_SORT_DIRECTION: -1,
 } as const;
 
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+/**
+ * Production detection.
+ *
+ * `NODE_ENV` is the canonical signal, but it is NOT set automatically on every
+ * managed host (Render in particular does not set it for plain Node web
+ * services). If it is missing, the API silently degrades to "development",
+ * which issues `SameSite=Lax` auth cookies — and a Lax cookie is never sent on
+ * a cross-site `fetch()` from the Vercel frontend, so every authenticated
+ * request 401s even though `POST /api/auth/login` returns 200.
+ *
+ * Render always sets `RENDER=true`, so we treat that as an equivalent
+ * production signal. This keeps the behaviour correct on the platform while
+ * still honouring NODE_ENV wherever it is set explicitly. Nothing is
+ * hardcoded and no secret is involved.
+ */
+export const IS_PRODUCTION =
+  process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
+
+/** Human-readable runtime mode, for startup logging only. */
+export const RUNTIME_ENV = IS_PRODUCTION ? 'production' : 'development';
 
 export const JWT = {
   COOKIE_NAME: 'kun_glass_token',

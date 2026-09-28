@@ -53,8 +53,13 @@ Optional — create the first admin (required before you can log in):
 npm run seed
 ```
 
-The seeder **refuses to run without `SEED_ADMIN_PASSWORD`**, never overwrites an
-existing admin, and is never executed automatically on server start.
+The seeder **refuses to run without `SEED_ADMIN_PASSWORD`** and is never executed
+automatically on server start. It is also non-destructive: an existing admin is
+left completely alone. To deliberately reset its password:
+
+```bash
+SEED_ADMIN_RESET_PASSWORD=true npm run seed
+```
 
 ### 2. Frontend
 
@@ -130,16 +135,24 @@ Admin mutations (POST/PUT/PATCH/DELETE) all require an authenticated, role-autho
 
 - [ ] Repository connected, **Root Directory = `backend`**
 - [ ] Build command: `npm install && npm run build`
-- [ ] Start command: `npm start` (never `npm run dev`)
-- [ ] Health check path: `/api/health`
+- [ ] **Start command: `npm start` — NOT `npm run seed && npm start`.**
+      The seeder must never run on every deploy/restart.
+- [ ] Health check path: `/api/health` (also reports the runtime mode)
 - [ ] `NODE_ENV=production`
-- [ ] `PORT` — leave unset (Render injects it)
+- [ ] **Delete any `PORT` variable.** Render injects its own; a hardcoded
+      `PORT=5000` overrides it and breaks routing.
 - [ ] `MONGODB_URI` = MongoDB Atlas URI
 - [ ] `JWT_SECRET` = strong random value
-- [ ] `CLIENT_URL` = the Vercel frontend URL
+- [ ] `CLIENT_URL` = the Vercel frontend URL, no trailing slash
 - [ ] `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT`
 - [ ] `SMTP_*`, `FROM_EMAIL`, `ADMIN_NOTIFICATION_EMAIL` (optional)
-- [ ] Seed the first admin once (locally or via a one-off shell) — not on every restart
+- [ ] Seed the first admin once, manually — not on every restart
+
+> **Critical:** do not copy your local `.env` into Render. A local
+> `NODE_ENV=development` makes the API issue `SameSite=Lax` cookies, which
+> browsers refuse to send on cross-site requests — login returns 200 but every
+> authenticated call then 401s. The API also treats `RENDER=true` as production
+> as a safety net, but set `NODE_ENV=production` correctly.
 
 ### Frontend — Vercel
 

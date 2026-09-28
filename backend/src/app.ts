@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-import { ALLOWED_ORIGINS } from './config/constants';
+import { ALLOWED_ORIGINS, RUNTIME_ENV } from './config/constants';
 import { AppError } from './utils/AppError';
 
 import authRoutes from './routes/auth.routes';
@@ -76,7 +76,13 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.get('/api/health', (_req: Request, res: Response) => {
-  res.status(200).json({ success: true, message: 'KUN Glass & Aluminium API is healthy' });
+  res.status(200).json({
+    success: true,
+    status: 'ok',
+    message: 'KUN Glass & Aluminium API is healthy',
+    // Safe to expose: lets you confirm the auth-cookie mode without guessing.
+    environment: RUNTIME_ENV,
+  });
 });
 
 app.use('/api/auth', authRoutes);

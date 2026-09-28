@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "seed": "ts-node src/seed.ts",
+    "seed:prod": "node dist/seed.js",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
