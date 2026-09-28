@@ -204,7 +204,7 @@ import {
   FaInstagram,
   FaLinkedinIn,
   FaYoutube,
-} from 'react-icons/fa';
+} from '@/components/ui/BrandIcons';
 
 export function Footer() {
   const {
