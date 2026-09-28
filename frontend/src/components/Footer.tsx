@@ -196,8 +196,9 @@ import {
   Phone,
   Mail,
   MapPin,
-  MessageCircle,
 } from 'lucide-react';
+
+import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon';
 
 import {
   FaFacebookF,
@@ -205,6 +206,9 @@ import {
   FaLinkedinIn,
   FaYoutube,
 } from '@/components/ui/BrandIcons';
+
+/** Development credit — official SSS Grow Tech website */
+const SSS_GROW_TECH_URL = 'https://www.sssgrowtech.co.in/';
 
 export function Footer() {
   const {
@@ -416,7 +420,7 @@ export function Footer() {
                     rel="noopener noreferrer"
                     className="flex items-start gap-3 transition-colors hover:text-emerald-300"
                   >
-                    <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                    <WhatsAppIcon className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
 
                     <span>WhatsApp</span>
                   </a>
@@ -440,25 +444,40 @@ export function Footer() {
 
       {/* Bottom bar */}
       <div className="border-t border-white/10 py-6">
-        <Container className="flex flex-col items-center justify-between gap-4 text-xs text-navy-300 sm:flex-row">
+        <Container className="flex flex-col items-center gap-4 text-center text-xs text-navy-300 sm:flex-row sm:justify-between sm:gap-6 sm:text-left">
 
-          <p>{copyright}</p>
+          <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-4">
+            <p className="break-words">{copyright}</p>
 
-          <div className="flex items-center gap-4">
-            <Link
-              href="/privacy"
-              className="link-underline hover:text-white"
-            >
-              Privacy Policy
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/privacy-policy"
+                className="link-underline hover:text-white"
+              >
+                Privacy Policy
+              </Link>
 
-            <Link
-              href="/terms"
-              className="link-underline hover:text-white"
-            >
-              Terms of Service
-            </Link>
+              <Link
+                href="/terms-of-service"
+                className="link-underline hover:text-white"
+              >
+                Terms of Service
+              </Link>
+            </div>
           </div>
+
+          <p className="flex flex-col items-center gap-x-1.5 sm:flex-row sm:flex-wrap">
+            <span>Designed &amp; Developed by</span>{' '}
+
+            <a
+              href={SSS_GROW_TECH_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-brand-orange underline decoration-transparent underline-offset-4 transition-colors duration-200 hover:text-brand-light hover:decoration-brand-orange/60"
+            >
+              SSS Grow Tech
+            </a>
+          </p>
 
         </Container>
       </div>

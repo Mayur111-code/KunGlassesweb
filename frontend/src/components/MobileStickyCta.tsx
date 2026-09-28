@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, MessageCircle } from 'lucide-react';
+import { Phone } from 'lucide-react';
+import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon';
 import { useSettings } from '@/lib/settings-context';
 import { buildTelLink } from '@/lib/utils';
 
@@ -45,9 +46,9 @@ export function MobileStickyCta() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-600"
-              aria-label="Chat on WhatsApp"
+              aria-label="Chat with KUN Glass & Aluminium on WhatsApp"
             >
-              <MessageCircle className="h-4 w-4" />
+              <WhatsAppIcon className="h-4 w-4" />
               WhatsApp
             </a>
           )}

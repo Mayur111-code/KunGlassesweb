@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { servicesApi, projectsApi, clientsApi, settingsApi } from '@/services';
+import { servicesApi, projectsApi, clientsApi } from '@/services';
+import { useSettings } from '@/lib/settings-context';
 import type { Service, Project, Client } from '@/types';
 import { getImageUrl } from '@/lib/utils';
 import { HeroSection } from '@/components/home/HeroSection';
@@ -16,12 +17,12 @@ import { CtaSection } from '@/components/home/CtaSection';
 import { ContactSection } from '@/components/home/ContactSection';
 
 export default function HomePage() {
+  const { settings } = useSettings();
   const [services, setServices] = useState<Service[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [projectTotal, setProjectTotal] = useState(0);
   const [clientTotal, setClientTotal] = useState(0);
-  const [heroImage, setHeroImage] = useState<string | undefined>();
   const [aboutImage, setAboutImage] = useState<string | undefined>();
 
   useEffect(() => {
@@ -33,11 +34,6 @@ export default function HomePage() {
         const featured = list.find((s) => s.isFeatured && s.featuredImage) ?? list.find((s) => s.featuredImage);
         if (featured?.featuredImage) setAboutImage(getImageUrl(featured.featuredImage));
       })
-      .catch(() => {});
-
-    settingsApi
-      .getPublic()
-      .then((r) => setHeroImage(getImageUrl(r.data.settings.heroImages?.home)))
       .catch(() => {});
 
     projectsApi
@@ -61,7 +57,7 @@ export default function HomePage() {
 
   return (
     <>
-      <HeroSection heroImage={heroImage} />
+      <HeroSection heroImage={settings ? getImageUrl(settings.heroImages?.home) : undefined} />
       <TrustStrip projectCount={projectTotal} clientCount={clientTotal} />
       <AboutSection image={aboutImage} />
       <ServicesSection services={services} />
