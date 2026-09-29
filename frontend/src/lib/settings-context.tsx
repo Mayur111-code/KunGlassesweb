@@ -10,6 +10,8 @@ import {
   type ReactNode,
 } from 'react';
 import { settingsApi } from '@/services';
+import { buildWhatsAppLink } from '@/lib/utils';
+import { FALLBACK_PHONE_NUMBERS } from '@/lib/brand';
 import type { ContactMethod, SettingsPayload, SiteSettings } from '@/types';
 
 interface SettingsContextValue {
@@ -83,13 +85,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<SettingsContextValue>(() => {
     const derived = transform({ settings: settings ?? ({} as SiteSettings), contactMethods });
-    let whatsappLink: string | null = null;
-    if (derived.primaryWhatsApp) {
-      const message = settings?.whatsappDefaultMessage || DEFAULT_WHATSAPP_MESSAGE;
-      const digits = derived.primaryWhatsApp.value.replace(/\D/g, '');
-      const formatted = digits.length === 10 ? `91${digits}` : digits;
-      whatsappLink = `https://wa.me/${formatted}?text=${encodeURIComponent(message)}`;
-    }
+    const message = settings?.whatsappDefaultMessage || DEFAULT_WHATSAPP_MESSAGE;
+
+    // A dedicated WhatsApp contact method is preferred. If the CMS has none, or
+    // the settings request failed entirely, fall back to the real KUN business
+    // numbers so the public WhatsApp CTA is never silently missing.
+    const whatsappSource = derived.primaryWhatsApp?.value ?? FALLBACK_PHONE_NUMBERS[0];
+    const whatsappLink = whatsappSource ? buildWhatsAppLink(whatsappSource, message) : null;
+
     return {
       ...derived,
       settings: settings ?? null,

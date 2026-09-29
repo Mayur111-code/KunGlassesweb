@@ -1,17 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon';
 import { useSettings } from '@/lib/settings-context';
 
 export function FloatingWhatsApp() {
-  const { primaryWhatsApp, whatsappLink, settings } = useSettings();
+  const { whatsappLink } = useSettings();
   const [footerVisible, setFooterVisible] = useState(false);
 
-  // The sticky bar and the footer bottom bar both sit along the bottom edge, so
-  // the floating button steps aside while the footer is on screen to avoid
-  // covering the footer contact and credit links.
+  // The footer bottom bar already lists a WhatsApp link, so the floating button
+  // steps aside while the footer is on screen rather than covering it.
   useEffect(() => {
     const footer = document.querySelector('footer');
     if (!footer) return;
@@ -24,8 +23,10 @@ export function FloatingWhatsApp() {
     return () => observer.disconnect();
   }, []);
 
-  // Only an explicit `false` hides the button; a missing flag should not.
-  if (settings?.whatsappEnabled === false || !whatsappLink || !primaryWhatsApp) return null;
+  // The context always resolves a real business number, so this only bails in
+  // the impossible case of no configured number at all. The CTA must never be
+  // hidden because a settings request is slow, failed, or in flight.
+  if (!whatsappLink) return null;
 
   return (
     <AnimatePresence>
