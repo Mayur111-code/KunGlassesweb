@@ -11,12 +11,25 @@ dist/
 .next/
 out/
 build/
+*.tsbuildinfo
+
+# Test / coverage output
+coverage/
+.nyc_output/
 
 # Runtime artifacts
 *.pid
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 logs/
+
+# Temporary / scratch
+tmp/
+temp/
+.cache/
 
 # Local uploads (media is stored in ImageKit)
 uploads/
@@ -26,6 +39,11 @@ uploads/
 Thumbs.db
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# Stray local PowerShell helpers (not part of the build/deploy pipeline)
+*.ps1
 
 # Platform build metadata
 .vercel/
