@@ -1,38 +1,74 @@
 'use client';
 
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowUpRight, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { MotionWrap } from '@/components/MotionWrap';
+import { useSettings } from '@/lib/settings-context';
+import { buildTelLink } from '@/lib/utils';
+import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon';
 
 export function CtaSection() {
+  const { primaryPhone, whatsappLink } = useSettings();
+  const phoneLink = primaryPhone ? buildTelLink(primaryPhone.value) : null;
+
   return (
-    <section className="relative overflow-hidden bg-navy-950 py-20 sm:py-28" aria-label="Start your project">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(240,120,24,0.15),transparent_55%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(69,105,172,0.1),transparent_55%)]" />
-      <Container className="relative z-10">
-        <MotionWrap className="mx-auto max-w-3xl text-center">
-          <h2 className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Let&apos;s build something exceptional
-          </h2>
-          <p className="mt-5 text-lg leading-relaxed text-navy-100/90">
-            Have a glass or aluminium requirement? Let&apos;s discuss your project with our team in Nashik.
+    <section
+      className="relative overflow-hidden bg-ink-950 py-20 text-stone-50 sm:py-28"
+      aria-label="Start your project"
+    >
+      <div className="absolute inset-0 blueprint-dark opacity-50" aria-hidden />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_20%,rgba(176,141,87,0.16),transparent_55%)]" aria-hidden />
+      <div className="pointer-events-none absolute right-[6%] top-1/2 hidden h-64 w-64 -translate-y-1/2 border border-white/10 lg:block" aria-hidden />
+
+      <Container className="relative">
+        <div className="grid items-end gap-12 lg:grid-cols-12">
+          <MotionWrap className="lg:col-span-7" amount={0.25}>
+            <p className="type-eyebrow inline-flex items-center gap-3 text-bronze-300">
+              <span className="h-px w-7 bg-bronze-300/70" aria-hidden />
+              Start a project
+            </p>
+            <h2 className="type-h2 mt-5 max-w-2xl text-stone-50">
+              Let&apos;s build something exceptional.
+            </h2>
+            <p className="mt-5 max-w-xl text-[0.975rem] leading-relaxed text-white/55">
+              Share your drawings, dimensions or simply an idea. We will advise on materials,
+              feasibility and a clear next step.
+            </p>
+          </MotionWrap>
+
+          <MotionWrap className="lg:col-span-5" delay={0.1} amount={0.25}>
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+              <Button href="/contact" size="lg" variant="primary" className="justify-between">
+                Discuss your project
+                <ArrowUpRight className="h-4 w-4" />
+              </Button>
+              <div className="grid grid-cols-2 gap-3">
+                {phoneLink ? (
+                  <Button href={phoneLink} size="lg" variant="outline-light" className="justify-center px-4">
+                    <Phone className="h-4 w-4" />
+                    Call
+                  </Button>
+                ) : null}
+                {whatsappLink ? (
+                  <Button href={whatsappLink} size="lg" variant="outline-light" className="justify-center px-4">
+                    <WhatsAppIcon className="h-4 w-4" />
+                    WhatsApp
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          </MotionWrap>
+        </div>
+
+        <div className="mt-14 flex flex-col gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="type-eyebrow text-bronze-200/70">
+            One Stop Solution For Glass &amp; Aluminium Works
           </p>
-          <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
-            <Link href="/contact" className="w-full sm:w-auto">
-              <Button size="lg" variant="primary" className="group w-full sm:w-auto">
-                Get a Quote
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </Link>
-            <Link href="/contact" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline-light" className="w-full sm:w-auto">
-                Contact Us
-              </Button>
-            </Link>
-          </div>
-        </MotionWrap>
+          <p className="text-[0.625rem] uppercase tracking-[0.24em] text-white/55">
+            Nashik · Maharashtra · India
+          </p>
+        </div>
       </Container>
     </section>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { useInView, useReducedMotion } from 'framer-motion';
 
 interface AnimatedCounterProps {
   value: number;
@@ -21,10 +21,12 @@ export function AnimatedCounter({
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: '-20px' });
   const reduceMotion = useReducedMotion();
-  const [display, setDisplay] = useState(reduceMotion ? value : 0);
+  const [display, setDisplay] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
+    // `useReducedMotion` is read inside the effect only, so the server and the
+    // first client render always agree on the initial value.
     if (reduceMotion) {
       setDisplay(value);
       return;

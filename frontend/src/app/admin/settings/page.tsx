@@ -15,7 +15,7 @@ type Tab = 'general' | 'hero' | 'contact' | 'social' | 'seo' | 'whatsapp' | 'foo
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'general', label: 'General' },
-  { key: 'hero', label: 'Page Hero Images' },
+  { key: 'hero', label: 'Page & Section Images' },
   { key: 'contact', label: 'Contact Methods' },
   { key: 'social', label: 'Social Media' },
   { key: 'seo', label: 'SEO' },
@@ -377,9 +377,9 @@ export default function AdminSettingsPage() {
         {activeTab === 'hero' && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-navy-950">Page Hero Images</h3>
+              <h3 className="text-lg font-semibold text-navy-950">Page &amp; Section Images</h3>
               <p className="mt-1 text-sm text-neutral-500">
-                These images control page-level heroes only. Project uploads stay attached to their project.
+                These images are owned by site settings. The About image is used on both the About page and the homepage About section. Service, project and client uploads never change these images.
               </p>
             </div>
             <div className="grid gap-6 lg:grid-cols-2">
@@ -393,7 +393,13 @@ export default function AdminSettingsPage() {
               ] as const).map(([key, label]) => (
                 <div key={key} className="rounded-lg border border-neutral-200 p-4">
                   <h4 className="mb-1 text-sm font-semibold text-navy-950">{label}</h4>
-                  <p className="mb-3 text-xs text-neutral-500">Used only on the {key} page.</p>
+                  <p className="mb-3 text-xs text-neutral-500">
+                    {key === 'home'
+                      ? 'Used for the homepage hero.'
+                      : key === 'about'
+                        ? 'Used on the About page and the homepage About section.'
+                        : `Used only on the ${key} page.`}
+                  </p>
                   <ImagePicker
                     value={settings.heroImages?.[key] ?? ''}
                     onChange={(value) => updateSetting('heroImages', { ...settings.heroImages, [key]: value })}

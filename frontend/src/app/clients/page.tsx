@@ -1,14 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Building2, MapPin, Star } from 'lucide-react';
+import { Building2, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
-import { SectionHeading } from '@/components/ui/SectionHeading';
+import { PageHero } from '@/components/ui/PageHero';
 import { MotionWrap, StaggerContainer, StaggerItem } from '@/components/MotionWrap';
-import { FullPageLoader } from '@/components/ui/Spinner';
 import { LoadError } from '@/components/ui/LoadState';
+import { CtaSection } from '@/components/home/CtaSection';
 import { clientsApi } from '@/services';
+import { getClientLogo, getSectionImage } from '@/lib/section-images';
 import { getImageUrl, getInitials } from '@/lib/utils';
 import { useSettings } from '@/lib/settings-context';
 import type { Client } from '@/types';
@@ -18,158 +19,206 @@ export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const heroImage = getImageUrl(settings?.heroImages?.clients);
+
+  const heroImage = getSectionImage(settings, 'clients');
 
   const loadClients = useCallback(() => {
     setLoading(true);
     setError(false);
-    clientsApi.getAll()
-      .then((res) => setClients(res.data ?? []))
+    clientsApi
+      .getAll()
+      .then((response) => setClients(response.data ?? []))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { loadClients(); }, [loadClients]);
+  useEffect(() => {
+    loadClients();
+  }, [loadClients]);
 
-  const featuredClients = clients.filter((c) => c.isFeatured);
-  const otherClients = clients.filter((c) => !c.isFeatured);
+  const featured = clients.filter((client) => client.isFeatured);
+  const others = clients.filter((client) => !client.isFeatured);
 
   return (
     <>
-      <section className="relative min-h-[40vh] flex items-center gradient-navy overflow-hidden">
-        {heroImage && <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover" aria-hidden />}
-        {heroImage && <div className="absolute inset-0 bg-navy-950/80" />}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
-        <Container className="relative z-10 py-32 sm:py-36">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-block rounded-full bg-brand-orange/20 border border-brand-orange/30 px-4 py-1.5 text-xs font-bold text-brand-light tracking-widest uppercase mb-6"
-          >
-            Our Clients
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl lg:leading-[1.1] mb-6 max-w-3xl"
-          >
-            Trusted by{' '}
-            <span className="text-brand-orange">Leading Brands</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg text-navy-100/80 max-w-2xl leading-relaxed"
-          >
-            Proud to work with reputed names across retail, education, IT, industrial and government sectors.
-          </motion.p>
-        </Container>
-      </section>
+      <PageHero
+        eyebrow="Clients"
+        title={
+          <>
+            Trusted by names
+            <br className="hidden sm:block" /> that <span className="text-bronze-300">build.</span>
+          </>
+        }
+        description="Long-standing relationships with developers, institutions, retailers and industrial groups across Nashik and Maharashtra."
+        imageUrl={heroImage}
+        meta={<span>{loading ? 'Loading' : `${clients.length} clients`}</span>}
+      />
 
-      <section className="py-20 sm:py-28">
+      <section className="section bg-surface" aria-label="Client directory">
         <Container>
           {loading ? (
-            <FullPageLoader label="Loading clients..." />
-          ) : error ? (
-            <LoadError message="Our client list could not be loaded. Please check your connection and try again." onRetry={loadClients} />
-          ) : clients.length === 0 ? (
-            <div className="text-center py-20">
-              <Building2 className="h-16 w-16 text-navy-200 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-navy-950 mb-2">No Clients to Display</h3>
-              <p className="text-navy-500">We are currently updating our client list. Please check back soon.</p>
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {[0, 1, 2, 3, 4, 5].map((index) => (
+                <div key={index} className="h-40 animate-pulse bg-stone-200" />
+              ))}
             </div>
+          ) : error ? (
+            <LoadError
+              message="Our client list could not be loaded. Please check your connection and try again."
+              onRetry={loadClients}
+            />
+          ) : clients.length === 0 ? (
+            <MotionWrap>
+              <div className="flex flex-col items-center justify-center border border-dashed border-line py-24 text-center">
+                <Building2 className="h-10 w-10 text-steel-300" aria-hidden />
+                <h2 className="mt-6 font-display text-2xl font-medium tracking-[-0.02em] text-ink-950">
+                  Client list in progress
+                </h2>
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-steel-500">
+                  We are refreshing our client directory. Please check back shortly.
+                </p>
+              </div>
+            </MotionWrap>
           ) : (
             <>
-              {featuredClients.length > 0 && (
-                <div className="mb-16">
-                  <MotionWrap className="mb-10">
-                    <SectionHeading
-                      eyebrow="Featured Clients"
-                      title="Our Key Partners"
-                      description="Long-standing relationships built on trust and quality."
-                      align="left"
-                    />
-                  </MotionWrap>
-
-                  <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {featuredClients.map((client) => (
-                      <StaggerItem key={client._id}>
-                        <div className="h-full bg-white rounded-2xl p-6 shadow-card border border-brand-orange/20 hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
-                          <div className="absolute top-3 right-3">
-                            <Star className="h-4 w-4 text-brand-orange fill-brand-orange" />
-                          </div>
-                          <div className="flex items-start gap-4 mb-4">
-                            {client.logo ? (
-                              <img src={getImageUrl(client.logo)} alt={client.name} className="h-14 w-14 object-contain shrink-0" />
-                            ) : (
-                              <div className="h-14 w-14 rounded-xl bg-brand-orange/10 flex items-center justify-center shrink-0 text-brand-orange font-bold text-lg">
-                                {getInitials(client.name)}
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <h3 className="text-base font-bold text-navy-950 truncate">{client.name}</h3>
-                              {client.category && <p className="text-xs text-brand-orange font-semibold mt-0.5">{client.category}</p>}
-                            </div>
-                          </div>
-                          {client.description && (
-                            <p className="text-sm text-navy-500 leading-relaxed mb-3">{client.description}</p>
-                          )}
-                          <div className="flex items-center gap-3 text-xs text-navy-400">
-                            {client.location && (
-                              <span className="flex items-center gap-1">
-                                <MapPin className="h-3 w-3" /> {client.location}
-                              </span>
-                            )}
-                            {client.projectDescription && (
-                              <span className="flex items-center gap-1">
-                                <Building2 className="h-3 w-3" /> Project done
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </StaggerItem>
-                    ))}
-                  </StaggerContainer>
-                </div>
-              )}
-
-              {otherClients.length > 0 && (
+              {featured.length > 0 ? (
                 <div>
-                  <MotionWrap className="mb-10">
-                    <SectionHeading
-                      eyebrow={featuredClients.length > 0 ? 'All Clients' : undefined}
-                      title={featuredClients.length > 0 ? 'More Valued Clients' : 'Our Clients'}
-                      description="Serving a wide range of industries and sectors."
-                      align="left"
-                    />
-                  </MotionWrap>
+                  <div className="flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="type-eyebrow text-bronze-700">Key Partners</p>
+                      <h2 className="type-h3 mt-4 text-ink-950">Relationships built on delivery.</h2>
+                    </div>
+                    <p className="text-[0.625rem] uppercase tracking-[0.2em] text-steel-500">
+                      {featured.length} featured
+                    </p>
+                  </div>
 
-                  <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-                    {otherClients.map((client) => (
-                      <StaggerItem key={client._id}>
-                        <div className="h-full bg-white rounded-2xl p-5 shadow-card border border-navy-100/50 hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 text-center">
-                          {client.logo ? (
-                            <img src={getImageUrl(client.logo)} alt={client.name} className="h-12 w-auto mx-auto object-contain mb-3" />
-                          ) : (
-                            <div className="h-12 w-12 mx-auto rounded-full bg-brand-orange/10 flex items-center justify-center mb-3 text-brand-orange font-bold text-base">
-                              {getInitials(client.name)}
+                  <StaggerContainer className="mt-4 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+                    {featured.map((client) => {
+                      const logo = getClientLogo(client);
+                      return (
+                        <StaggerItem key={client._id}>
+                          <div className="flex h-full flex-col bg-surface p-6">
+                            <div className="flex h-16 items-center">
+                              {logo ? (
+                                <img
+                                  src={getImageUrl(client.logo)}
+                                  alt={client.name}
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="max-h-12 max-w-[10rem] object-contain"
+                                />
+                              ) : (
+                                <span className="flex h-12 w-12 items-center justify-center border border-line text-sm font-semibold text-bronze-700">
+                                  {getInitials(client.name)}
+                                </span>
+                              )}
                             </div>
-                          )}
-                          <p className="text-sm font-semibold text-navy-900 leading-tight">{client.name}</p>
-                          {client.category && <p className="text-xs text-navy-400 mt-1">{client.category}</p>}
-                        </div>
-                      </StaggerItem>
-                    ))}
+
+                            <h3 className="mt-6 font-display text-lg font-medium tracking-[-0.015em] text-ink-950">
+                              {client.name}
+                            </h3>
+                            {client.category ? (
+                              <p className="mt-1 text-[0.625rem] uppercase tracking-[0.18em] text-bronze-700">
+                                {client.category}
+                              </p>
+                            ) : null}
+                            {client.description ? (
+                              <p className="mt-3 flex-1 text-[0.8125rem] leading-relaxed text-steel-500">
+                                {client.description}
+                              </p>
+                            ) : (
+                              <div className="flex-1" />
+                            )}
+
+                            <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line pt-4 text-[0.6875rem] text-steel-500">
+                              {client.location ? (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <MapPin className="h-3 w-3" aria-hidden />
+                                  {client.location}
+                                </span>
+                              ) : null}
+                              {client.projectDescription ? (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <Building2 className="h-3 w-3" aria-hidden />
+                                  Project delivered
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        </StaggerItem>
+                      );
+                    })}
                   </StaggerContainer>
                 </div>
-              )}
+              ) : null}
+
+              {others.length > 0 ? (
+                <div className={featured.length > 0 ? 'mt-20' : ''}>
+                  <div className="flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="type-eyebrow text-bronze-700">
+                        {featured.length > 0 ? 'Directory' : 'Our Clients'}
+                      </p>
+                      <h2 className="type-h3 mt-4 text-ink-950">
+                        {featured.length > 0 ? 'More valued clients.' : 'Clients we work with.'}
+                      </h2>
+                    </div>
+                    <p className="text-[0.625rem] uppercase tracking-[0.2em] text-steel-500">
+                      {others.length} total
+                    </p>
+                  </div>
+
+                  <StaggerContainer className="mt-4 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-3 lg:grid-cols-4">
+                    {others.map((client) => {
+                      const logo = getClientLogo(client);
+                      return (
+                        <StaggerItem key={client._id}>
+                          <div className="flex h-full min-h-[8.5rem] flex-col items-center justify-center gap-3 bg-surface p-5 text-center">
+                            {logo ? (
+                              <img
+                                src={getImageUrl(client.logo)}
+                                alt={client.name}
+                                loading="lazy"
+                                decoding="async"
+                                className="h-10 max-w-[8rem] object-contain opacity-75 transition-opacity duration-300 hover:opacity-100"
+                              />
+                            ) : (
+                              <span className="flex h-10 w-10 items-center justify-center border border-line text-xs font-semibold text-bronze-700">
+                                {getInitials(client.name)}
+                              </span>
+                            )}
+                            <p className="text-[0.75rem] font-medium leading-tight text-ink-800">
+                              {client.name}
+                            </p>
+                            {client.category ? (
+                              <p className="text-[0.5625rem] uppercase tracking-[0.16em] text-steel-500">
+                                {client.category}
+                              </p>
+                            ) : null}
+                          </div>
+                        </StaggerItem>
+                      );
+                    })}
+                  </StaggerContainer>
+                </div>
+              ) : null}
+
+              <div className="mt-14 flex flex-col items-start justify-between gap-6 border-t border-line pt-8 sm:flex-row sm:items-center">
+                <p className="max-w-md text-sm leading-relaxed text-steel-500">
+                  Want references for a project like yours? Our team can share relevant completed
+                  work on request.
+                </p>
+                <Button href="/contact" variant="ink" size="md">
+                  Request references
+                </Button>
+              </div>
             </>
           )}
         </Container>
       </section>
+
+      <CtaSection />
     </>
   );
 }

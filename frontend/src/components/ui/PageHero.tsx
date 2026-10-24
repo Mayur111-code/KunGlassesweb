@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { Container } from '@/components/ui/Container';
+import { ParallaxImage } from '@/components/motion/ParallaxImage';
 import { cn } from '@/lib/utils';
 
 interface PageHeroProps {
@@ -12,75 +13,90 @@ interface PageHeroProps {
   children?: ReactNode;
   className?: string;
   imageUrl?: string;
+  /** Right-hand meta rail, e.g. an index or location. */
+  meta?: ReactNode;
 }
 
-export function PageHero({ eyebrow, title, description, children, className, imageUrl }: PageHeroProps) {
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+/**
+ * Shared editorial hero for inner pages. The page image comes from
+ * `SiteSettings.heroImages` via the caller — never from a service or project.
+ */
+export function PageHero({
+  eyebrow,
+  title,
+  description,
+  children,
+  className,
+  imageUrl,
+  meta,
+}: PageHeroProps) {
   return (
     <section
       className={cn(
-        'relative flex min-h-[42vh] items-end overflow-hidden bg-navy-950 sm:min-h-[46vh]',
+        'relative flex min-h-[54svh] items-end overflow-hidden bg-ink-950 text-stone-50 sm:min-h-[58svh]',
         className
       )}
     >
       {imageUrl ? (
         <>
-          <img src={imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" aria-hidden />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy-950/95 via-navy-950/88 to-navy-950/75" />
+          <ParallaxImage
+            src={imageUrl}
+            alt=""
+            priority
+            strength={30}
+            className="absolute inset-0 h-full w-full"
+            imgClassName="opacity-70"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/20 to-ink-950/60" />
         </>
       ) : (
         <>
-          <div className="absolute inset-0 gradient-navy" />
-          <div
-            className="absolute inset-0 opacity-[0.04]"
-            style={{
-              backgroundImage:
-                'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-            }}
-          />
-          <div className="pointer-events-none absolute -right-24 top-1/4 h-72 w-72 rounded-full border border-white/10 motion-reduce:hidden" />
-          <div className="pointer-events-none absolute right-1/4 top-1/2 h-40 w-px bg-gradient-to-b from-transparent via-brand-orange/40 to-transparent motion-reduce:hidden" />
+          <div className="absolute inset-0 hero-architectural" />
+          <div className="absolute inset-0 blueprint-dark opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-ink-950/30" />
         </>
       )}
 
-      <Container className="relative z-10 pb-14 pt-28 sm:pb-16 sm:pt-32">
-        {eyebrow ? (
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-4 text-sm font-semibold text-brand-light"
-          >
-            {eyebrow}
-          </motion.p>
-        ) : null}
-        <motion.h1
-          initial={{ opacity: 0, y: 24 }}
+      {/* Architectural line motif */}
+      <div className="pointer-events-none absolute inset-y-0 right-[8%] hidden w-px bg-gradient-to-b from-transparent via-bronze-500/30 to-transparent lg:block" aria-hidden />
+      <div className="pointer-events-none absolute right-[8%] top-[22%] hidden h-40 w-40 border border-white/10 lg:block" aria-hidden />
+
+      <Container className="relative z-10 pb-14 pt-32 sm:pb-16 sm:pt-36 lg:pb-20 lg:pt-40">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.05 }}
-          className="font-display max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-[3.25rem] lg:leading-[1.08]"
+          transition={{ duration: 0.7, ease: EASE }}
         >
-          {title}
-        </motion.h1>
-        {description ? (
-          <motion.p
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.12 }}
-            className="mt-5 max-w-2xl text-base leading-relaxed text-navy-100/90 sm:text-lg"
-          >
-            {description}
-          </motion.p>
-        ) : null}
-        {children ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.18 }}
-            className="mt-8"
-          >
-            {children}
-          </motion.div>
-        ) : null}
+          {eyebrow ? (
+            <p className="type-eyebrow inline-flex items-center gap-3 text-bronze-300">
+              <span className="h-px w-7 bg-bronze-300/70" aria-hidden />
+              {eyebrow}
+            </p>
+          ) : null}
+
+          <h1 className="type-h1 mt-6 max-w-4xl text-stone-50">{title}</h1>
+
+          {description ? (
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-stone-300/85 sm:text-[1.0625rem]">
+              {description}
+            </p>
+          ) : null}
+
+          {children ? <div className="mt-9">{children}</div> : null}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.35 }}
+          className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-5"
+        >
+          <p className="type-eyebrow text-white/55">KUN Glass &amp; Aluminium — Nashik, Maharashtra</p>
+          {meta ? <div className="text-[0.6875rem] uppercase tracking-[0.24em] text-white/55">{meta}</div> : null}
+        </motion.div>
       </Container>
     </section>
   );

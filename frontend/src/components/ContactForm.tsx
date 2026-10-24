@@ -10,8 +10,7 @@ import { buildTelLink, cn } from '@/lib/utils';
 import { servicesApi, enquiriesApi } from '@/services';
 import type { Service } from '@/types';
 
-const inputClass =
-  'w-full h-11 px-4 rounded-md border border-navy-200/80 bg-white text-sm text-navy-900 placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-brand-orange/25 focus:border-brand-orange transition-all duration-200';
+const inputClass = 'field';
 
 interface ContactFormProps {
   className?: string;
@@ -81,26 +80,22 @@ export function ContactForm({ className, compact }: ContactFormProps) {
   if (submitted) {
     return (
       <MotionWrap>
-        <div className={cn('rounded-xl border border-emerald-200 bg-emerald-50/80 p-8 text-center', className)}>
-          <CheckCircle2 className="mx-auto mb-4 h-14 w-14 text-emerald-500" />
-          <h3 className="mb-2 text-xl font-bold text-navy-950">Thank you</h3>
-          <p className="mb-6 text-navy-600">
+        <div className={cn('border border-line bg-white p-8 text-center shadow-soft', className)}>
+          <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
+          <h3 className="mb-2 font-display text-2xl font-medium tracking-[-0.02em] text-ink-950">Thank you</h3>
+          <p className="mb-6 text-sm text-steel-500">
             Your enquiry was submitted successfully. Our team will contact you shortly.
           </p>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
             {phoneLink && (
-              <a href={phoneLink}>
-                <Button variant="outline" size="md">
-                  Call Now
-                </Button>
-              </a>
+              <Button href={phoneLink} variant="outline" size="md">
+                Call Now
+              </Button>
             )}
             {whatsappLink && (
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                <Button variant="primary" size="md">
-                  WhatsApp Us
-                </Button>
-              </a>
+              <Button href={whatsappLink} variant="primary" size="md">
+                WhatsApp Us
+              </Button>
             )}
           </div>
         </div>
@@ -112,7 +107,7 @@ export function ContactForm({ className, compact }: ContactFormProps) {
     <form onSubmit={handleSubmit} className={cn('space-y-5', className)} noValidate>
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label htmlFor="cf-fullName" className="mb-1.5 block text-sm font-semibold text-navy-900">
+          <label htmlFor="cf-fullName" className="field-label">
             Name *
           </label>
           <input
@@ -127,7 +122,7 @@ export function ContactForm({ className, compact }: ContactFormProps) {
           />
         </div>
         <div>
-          <label htmlFor="cf-phone" className="mb-1.5 block text-sm font-semibold text-navy-900">
+          <label htmlFor="cf-phone" className="field-label">
             Phone *
           </label>
           <input
@@ -144,7 +139,7 @@ export function ContactForm({ className, compact }: ContactFormProps) {
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label htmlFor="cf-email" className="mb-1.5 block text-sm font-semibold text-navy-900">
+          <label htmlFor="cf-email" className="field-label">
             Email
           </label>
           <input
@@ -158,7 +153,7 @@ export function ContactForm({ className, compact }: ContactFormProps) {
           />
         </div>
         <div>
-          <label htmlFor="cf-company" className="mb-1.5 block text-sm font-semibold text-navy-900">
+          <label htmlFor="cf-company" className="field-label">
             Company
           </label>
           <input
@@ -173,7 +168,7 @@ export function ContactForm({ className, compact }: ContactFormProps) {
         </div>
       </div>
       <div>
-        <label htmlFor="cf-service" className="mb-1.5 block text-sm font-semibold text-navy-900">
+        <label htmlFor="cf-service" className="field-label">
           Service
         </label>
         <select
@@ -192,7 +187,7 @@ export function ContactForm({ className, compact }: ContactFormProps) {
         </select>
       </div>
       <div>
-        <span className="mb-2 block text-sm font-semibold text-navy-900">Preferred contact method</span>
+        <span className="mb-2 block text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-steel-500">Preferred contact method</span>
         <div className="flex flex-wrap gap-3">
           {(
             [
@@ -204,10 +199,10 @@ export function ContactForm({ className, compact }: ContactFormProps) {
             <label
               key={opt.value}
               className={cn(
-                'flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors duration-200',
+                'flex cursor-pointer items-center gap-2 rounded-xs border px-3.5 py-2.5 text-[0.8125rem] transition-colors duration-200',
                 form.preferredContactMethod === opt.value
-                  ? 'border-brand-orange bg-brand-orange/5 text-navy-950'
-                  : 'border-navy-200 text-navy-600 hover:border-navy-300'
+                  ? 'border-bronze-500 bg-bronze-50 text-ink-950'
+                  : 'border-line text-steel-500 hover:border-steel-400'
               )}
             >
               <input
@@ -216,7 +211,7 @@ export function ContactForm({ className, compact }: ContactFormProps) {
                 value={opt.value}
                 checked={form.preferredContactMethod === opt.value}
                 onChange={handleChange}
-                className="accent-brand-orange"
+                className="accent-bronze-600"
               />
               {opt.label}
             </label>
@@ -224,7 +219,7 @@ export function ContactForm({ className, compact }: ContactFormProps) {
         </div>
       </div>
       <div>
-        <label htmlFor="cf-message" className="mb-1.5 block text-sm font-semibold text-navy-900">
+        <label htmlFor="cf-message" className="field-label">
           Message *
         </label>
         <textarea

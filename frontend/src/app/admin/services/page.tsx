@@ -393,7 +393,10 @@ export default function AdminServicesPage() {
             />
           </FormField>
 
-          <FormField label="Featured Image" hint="Upload a file or use a validated external URL.">
+          <FormField
+            label="Service Image"
+            hint="Belongs only to this service — it appears on the service card and detail page. Uploading here never changes the homepage hero or the About image."
+          >
             <ImagePicker value={form.featuredImage} onChange={(featuredImage) => setForm({ ...form, featuredImage })} altText={form.title} label="featured image" />
           </FormField>
 

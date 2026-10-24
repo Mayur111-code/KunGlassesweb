@@ -1,19 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { ArrowRight, Building2, MapPin, Search } from 'lucide-react';
+import { ArrowUpRight, Building2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
-import { SectionHeading } from '@/components/ui/SectionHeading';
+import { PageHero } from '@/components/ui/PageHero';
 import { MotionWrap, StaggerContainer, StaggerItem } from '@/components/MotionWrap';
-import { FullPageLoader } from '@/components/ui/Spinner';
 import { LoadError } from '@/components/ui/LoadState';
+import { CtaSection } from '@/components/home/CtaSection';
 import { projectsApi } from '@/services';
-import type { Project } from '@/types';
-import { getImageUrl } from '@/lib/utils';
+import { getSectionImage } from '@/lib/section-images';
+import { getImageUrl, cn } from '@/lib/utils';
 import { useSettings } from '@/lib/settings-context';
+import type { Project } from '@/types';
 
 export default function ProjectsPage() {
   const { settings } = useSettings();
@@ -22,175 +22,209 @@ export default function ProjectsPage() {
   const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
-  const heroImage = getImageUrl(settings?.heroImages?.projects);
+
+  const heroImage = getSectionImage(settings, 'projects');
 
   const loadProjects = useCallback(() => {
     setLoading(true);
     setError(false);
-    projectsApi.getAll()
-      .then((res) => setProjects(res.data ?? []))
+    projectsApi
+      .getAll()
+      .then((response) => setProjects(response.data ?? []))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { loadProjects(); }, [loadProjects]);
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
 
   const categories = useMemo(() => {
-    const cats = new Set(projects.map((p) => p.category).filter(Boolean));
-    return ['All', ...Array.from(cats)];
+    const values = new Set(projects.map((project) => project.category).filter(Boolean));
+    return ['All', ...Array.from(values)];
   }, [projects]);
 
   const filtered = useMemo(() => {
-    return projects.filter((p) => {
-      const matchCategory = category === 'All' || p.category === category;
-      const q = search.toLowerCase();
-      const matchSearch = !q || p.title.toLowerCase().includes(q) || p.clientName.toLowerCase().includes(q) || p.location.toLowerCase().includes(q);
+    const query = search.trim().toLowerCase();
+    return projects.filter((project) => {
+      const matchCategory = category === 'All' || project.category === category;
+      const matchSearch =
+        !query ||
+        [project.title, project.clientName, project.location, project.category]
+          .filter(Boolean)
+          .some((value) => value!.toLowerCase().includes(query));
       return matchCategory && matchSearch;
     });
   }, [projects, category, search]);
 
   return (
     <>
-      <section className="relative min-h-[40vh] flex items-center gradient-navy overflow-hidden">
-        {heroImage && <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover" aria-hidden />}
-        {heroImage && <div className="absolute inset-0 bg-navy-950/80" />}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
-        <Container className="relative z-10 py-32 sm:py-36">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-block rounded-full bg-brand-orange/20 border border-brand-orange/30 px-4 py-1.5 text-xs font-bold text-brand-light tracking-widest uppercase mb-6"
-          >
-            Our Work
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl lg:leading-[1.1] mb-6 max-w-3xl"
-          >
-            Completed{' '}
-            <span className="text-brand-orange">Projects</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg text-navy-100/80 max-w-2xl leading-relaxed"
-          >
-            A showcase of our projects delivered across Nashik and Maharashtra.
-          </motion.p>
-        </Container>
-      </section>
+      <PageHero
+        eyebrow="Projects"
+        title={
+          <>
+            Work measured in
+            <br className="hidden sm:block" /> <span className="text-bronze-300">light and line.</span>
+          </>
+        }
+        description="A portfolio of completed glass, aluminium and ACP work across residential, commercial and industrial architecture."
+        imageUrl={heroImage}
+        meta={<span>{loading ? 'Loading' : `${projects.length} projects`}</span>}
+      />
 
-      <section className="py-20 sm:py-28">
+      <section className="section bg-surface" aria-label="Project portfolio">
         <Container>
           {loading ? (
-            <FullPageLoader label="Loading projects..." />
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {[0, 1, 2, 3, 4, 5].map((index) => (
+                <div key={index} className="space-y-4">
+                  <div className="aspect-[4/5] animate-pulse bg-stone-200" />
+                  <div className="h-4 w-2/3 animate-pulse bg-stone-300" />
+                  <div className="h-3 w-1/2 animate-pulse bg-stone-200" />
+                </div>
+              ))}
+            </div>
           ) : error ? (
-            <LoadError message="Our projects could not be loaded. Please check your connection and try again." onRetry={loadProjects} />
+            <LoadError
+              message="Our projects could not be loaded. Please check your connection and try again."
+              onRetry={loadProjects}
+            />
+          ) : projects.length === 0 ? (
+            <MotionWrap>
+              <div className="flex flex-col items-center justify-center border border-dashed border-line py-24 text-center">
+                <Building2 className="h-10 w-10 text-steel-300" aria-hidden />
+                <h2 className="mt-6 font-display text-2xl font-medium tracking-[-0.02em] text-ink-950">
+                  Portfolio in progress
+                </h2>
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-steel-500">
+                  We are preparing the latest project photography. In the meantime, our team is
+                  happy to share references directly.
+                </p>
+                <Button href="/contact" variant="outline" size="md" className="mt-6">
+                  Request references
+                </Button>
+              </div>
+            </MotionWrap>
           ) : (
             <>
-              <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-navy-400" />
-                  <input
-                    type="text"
-                    placeholder="Search projects..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full h-11 pl-10 pr-4 rounded-lg border border-navy-200 bg-white text-sm text-navy-900 placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-brand-orange/30 focus:border-brand-orange transition-all"
-                  />
+              {/* Filters */}
+              <div className="flex flex-col gap-6 border-b border-line pb-8 lg:flex-row lg:items-center lg:justify-between">
+                <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+                  {categories.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => setCategory(item)}
+                      aria-pressed={category === item}
+                      className={cn(
+                        'shrink-0 rounded-xs border px-4 py-2 text-[0.6875rem] font-medium uppercase tracking-[0.14em] transition-colors duration-300',
+                        category === item
+                          ? 'border-ink-950 bg-ink-950 text-stone-50'
+                          : 'border-line text-steel-500 hover:border-steel-400 hover:text-ink-900'
+                      )}
+                    >
+                      {item}
+                    </button>
+                  ))}
                 </div>
-                <div className="relative">
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="h-11 pl-4 pr-10 rounded-lg border border-navy-200 bg-white text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-brand-orange/30 focus:border-brand-orange transition-all appearance-none cursor-pointer"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-navy-400"><path d="m6 9 6 6 6-6"/></svg>
-                  </div>
+
+                <div className="relative w-full lg:w-72">
+                  <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-steel-500" aria-hidden />
+                  <input
+                    type="search"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Search projects, clients, locations"
+                    aria-label="Search projects"
+                    className="field h-11 pl-10 text-[0.8125rem]"
+                  />
                 </div>
               </div>
 
+              <div className="mt-6 flex items-center justify-between">
+                <p className="text-[0.6875rem] uppercase tracking-[0.2em] text-steel-500">
+                  {filtered.length} {filtered.length === 1 ? 'project' : 'projects'}
+                </p>
+                {category !== 'All' || search ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCategory('All');
+                      setSearch('');
+                    }}
+                    className="text-[0.6875rem] uppercase tracking-[0.16em] text-bronze-700 underline-offset-4 hover:underline"
+                  >
+                    Clear filters
+                  </button>
+                ) : null}
+              </div>
+
               {filtered.length === 0 ? (
-                <div className="text-center py-20">
-                  <Building2 className="h-16 w-16 text-navy-200 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-navy-950 mb-2">No Projects Found</h3>
-                  <p className="text-navy-500">
-                    {projects.length === 0 ? 'We are currently updating our portfolio. Please check back soon.' : 'No projects match your current filters.'}
+                <div className="mt-10 flex flex-col items-center justify-center border border-dashed border-line py-20 text-center">
+                  <Building2 className="h-9 w-9 text-steel-300" aria-hidden />
+                  <h2 className="mt-5 font-display text-xl font-medium text-ink-950">
+                    No matching projects
+                  </h2>
+                  <p className="mt-2 text-sm text-steel-500">
+                    Try a different category or search term.
                   </p>
-                  {projects.length > 0 && (
-                    <Button variant="outline" size="md" className="mt-4" onClick={() => { setCategory('All'); setSearch(''); }}>
-                      Clear Filters
-                    </Button>
-                  )}
                 </div>
               ) : (
-                <>
-                  <p className="text-sm text-navy-500 mb-6">{filtered.length} project{filtered.length !== 1 ? 's' : ''} found</p>
-                  <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filtered.map((project) => (
+                <StaggerContainer className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                  {filtered.map((project) => {
+                    const cover = getImageUrl(project.images?.[0]);
+                    return (
                       <StaggerItem key={project._id}>
                         <Link href={`/projects/${project.slug}`} className="group block h-full">
-                          <div className="h-full bg-white rounded-md shadow-card hover:shadow-card-hover transition-all duration-300 border border-navy-100/70 overflow-hidden group-hover:-translate-y-1">
-                            <div className="h-52 bg-gradient-to-br from-navy-900 to-navy-700 flex items-center justify-center relative overflow-hidden">
-                              {project.images?.[0] ? (
+                          <article>
+                            <div className="media-frame aspect-[4/5]">
+                              {cover ? (
                                 <img
-                                  src={getImageUrl(project.images[0])}
+                                  src={cover}
                                   alt={project.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="h-full w-full object-cover transition-transform duration-[1.1s] ease-arch group-hover:scale-[1.045]"
                                 />
                               ) : (
-                                <div className="text-center px-6">
-                                  <Building2 className="h-12 w-12 text-white/30 mx-auto mb-3" />
-                                  <span className="text-sm text-white/50">{project.title}</span>
+                                <div className="flex h-full items-center justify-center bg-ink-900">
+                                  <Building2 className="h-10 w-10 text-white/20" aria-hidden />
                                 </div>
                               )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/60 to-transparent" />
-                              {project.category && (
-                                <span className="absolute top-3 left-3 inline-block rounded-full bg-brand-orange/90 text-white text-xs font-semibold px-3 py-1">
+                              <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-ink-950/10 to-transparent" />
+
+                              {project.category ? (
+                                <span className="absolute left-4 top-4 border border-white/25 bg-ink-950/30 px-2.5 py-1 text-[0.5625rem] uppercase tracking-[0.2em] text-white/80 backdrop-blur-sm">
                                   {project.category}
                                 </span>
-                              )}
-                            </div>
-                            <div className="p-5">
-                              <div className="flex items-center gap-2 text-xs text-navy-400 mb-2">
-                                <span>{project.clientName}</span>
-                                {project.location && (
-                                  <>
-                                    <span className="w-1 h-1 rounded-full bg-navy-300" />
-                                    <span className="flex items-center gap-1">
-                                      <MapPin className="h-3 w-3" />
-                                      {project.location}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <h3 className="text-base font-bold text-navy-950 group-hover:text-brand-orange transition-colors">
-                                {project.title}
-                              </h3>
-                              <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-brand-orange">
-                                View Details <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                              ) : null}
+
+                              <span className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center border border-white/25 text-white/75 transition-all duration-500 ease-arch group-hover:border-bronze-400 group-hover:bg-bronze-500 group-hover:text-ink-950">
+                                <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                              </span>
+
+                              <div className="absolute inset-x-0 bottom-0 p-5">
+                                <h2 className="font-display text-xl font-medium tracking-[-0.015em] text-stone-50">
+                                  {project.title}
+                                </h2>
+                                <p className="mt-1 text-[0.75rem] text-white/55">
+                                  {[project.clientName, project.location].filter(Boolean).join(' · ')}
+                                </p>
                               </div>
                             </div>
-                          </div>
+                          </article>
                         </Link>
                       </StaggerItem>
-                    ))}
-                  </StaggerContainer>
-                </>
+                    );
+                  })}
+                </StaggerContainer>
               )}
             </>
           )}
         </Container>
       </section>
+
+      <CtaSection />
     </>
   );
 }
