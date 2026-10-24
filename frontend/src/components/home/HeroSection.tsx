@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, ChevronDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { useSettings } from '@/lib/settings-context';
@@ -17,12 +18,19 @@ export function HeroSection({ heroImage }: HeroSectionProps) {
   const { scrollY } = useScroll();
   const bgY = useTransform(scrollY, [0, 600], [0, 80]);
   const opacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const imageSrc = heroImage ? getImageUrl(heroImage) : '';
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const src = heroImage ? getImageUrl(heroImage) : '';
+    setImageSrc(src || null);
+  }, [heroImage]);
 
   return (
     <section className="relative min-h-[min(900px,100vh)] overflow-hidden bg-navy-950" aria-label="Hero">
       {/* Background image with reveal */}
-      {imageSrc ? (
+      {mounted && imageSrc ? (
         <motion.div
           style={{ y: bgY }}
           initial={{ scale: 1.15, opacity: 0 }}
@@ -35,6 +43,7 @@ export function HeroSection({ heroImage }: HeroSectionProps) {
             alt=""
             className="h-[120%] w-full object-cover"
             aria-hidden
+            loading="eager"
           />
         </motion.div>
       ) : (
@@ -77,10 +86,10 @@ export function HeroSection({ heroImage }: HeroSectionProps) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-brand-light"
+            className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-accent"
           >
-            <span className="h-px w-8 bg-brand-orange" aria-hidden />
-            KUN Glass &amp; Aluminium
+            <span className="h-px w-8 bg-accent" aria-hidden />
+            Architectural Glass &amp; Aluminium Solutions
           </motion.p>
 
           {/* Heading */}
@@ -88,10 +97,10 @@ export function HeroSection({ heroImage }: HeroSectionProps) {
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="font-display max-w-4xl text-4xl font-bold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-[3.75rem] lg:leading-[1.1]"
+            className="font-display max-w-5xl text-5xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-[6rem] xl:leading-[1.06]"
           >
-            One Stop Solution For
-            <span className="mt-2 block text-navy-100">Glass &amp; Aluminium Works</span>
+            Modern Spaces.
+            <span className="mt-2 block text-white/90">Stronger Tomorrow.</span>
           </motion.h1>
 
           {/* Animated decorative line */}
@@ -99,7 +108,7 @@ export function HeroSection({ heroImage }: HeroSectionProps) {
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ duration: 0.9, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-8 h-px max-w-xs origin-left bg-gradient-to-r from-brand-orange to-transparent"
+            className="mt-8 h-px max-w-xs origin-left bg-gradient-to-r from-accent to-transparent"
             aria-hidden
           />
 
@@ -108,10 +117,9 @@ export function HeroSection({ heroImage }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.45 }}
-            className="mt-8 max-w-2xl text-base leading-relaxed text-navy-100/95 sm:text-lg"
+            className="mt-8 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg lg:text-xl lg:leading-relaxed"
           >
-            {settings?.aboutShort ??
-              `${settings?.companyName ?? 'KUN Glass & Aluminium'} delivers complete glass, aluminium, interior and exterior solutions for residential, commercial and industrial projects across Nashik, Maharashtra.`}
+            Precision-crafted glass and aluminium solutions for contemporary residential, commercial, and architectural spaces.
           </motion.p>
 
           {/* CTA pair */}
@@ -121,16 +129,16 @@ export function HeroSection({ heroImage }: HeroSectionProps) {
             transition={{ duration: 0.7, delay: 0.55 }}
             className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
           >
-            <Link href="/contact" className="w-full sm:w-auto">
+            <Link href="/projects" className="w-full sm:w-auto">
               <Button size="lg" variant="primary" className="group w-full sm:w-auto">
-                Get a Quote
+                Explore Our Work
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link href="/projects" className="w-full sm:w-auto">
+            <Link href="/contact" className="w-full sm:w-auto">
               <Button size="lg" variant="outline-light" className="group w-full sm:w-auto">
-                Explore Projects
-                <ArrowRight className="h-4 w-4 opacity-70 transition-transform group-hover:translate-x-1" />
+                Discuss Your Project
+                <ArrowRight className="h-4 w-4 opacity-80 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
           </motion.div>
@@ -140,9 +148,9 @@ export function HeroSection({ heroImage }: HeroSectionProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7, delay: 0.7 }}
-            className="mt-10 text-sm text-navy-200/80"
+            className="mt-10 text-sm uppercase tracking-[0.3em] text-white/70"
           >
-            Residential &middot; Commercial &middot; Industrial
+            Residential &middot; Commercial &middot; Architectural &middot; Industrial
           </motion.p>
         </motion.div>
 

@@ -9,26 +9,36 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: {
-        navy: {
-          50: '#f3f6fb',
-          100: '#e3eaf5',
-          200: '#c6d4ea',
-          300: '#9ab3d9',
-          400: '#6789c3',
-          500: '#4569ac',
-          600: '#345390',
-          700: '#2c4374',
-          800: '#24355a',
-          900: '#17233c',
-          950: '#0e1627',
+        colors: {
+          background: 'var(--color-background)',
+          surface: 'var(--color-surface)',
+          border: 'var(--color-border)',
+          text: {
+            primary: 'var(--color-text-primary)',
+            secondary: 'var(--color-text-secondary)',
+          },
+          accent: 'var(--color-accent)',
+          sage: 'var(--color-accent-sage)',
+          'dark-contrast': 'var(--color-dark-contrast)',
+          navy: {
+            50: '#f9f9f8',
+            100: '#f1f1ef',
+            200: '#e7e6e2',
+            300: '#d9d5ce',
+            400: '#c7c1b6',
+            500: '#b8b0a2',
+            600: '#a8a091',
+            700: '#908a7c',
+            800: '#787367',
+            900: '#615e54',
+            950: '#1f1f1f',
+          },
+          brand: {
+            orange: '#b08d57',
+            light: '#c5a26a',
+            dark: '#9a7a4a',
+          },
         },
-        brand: {
-          orange: '#F07818',
-          light: '#ff9240',
-          dark: '#d9630e',
-        },
-      },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
         display: ['var(--font-display)', 'system-ui', 'sans-serif'],

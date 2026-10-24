@@ -1,5 +1,7 @@
+import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import type { Metadata } from 'next';
-import { Inter, Outfit } from 'next/font/google';
+import Script from 'next/script';
+import { Suspense } from 'react';
 import './globals.css';
 import { Providers } from './providers';
 import { LayoutShell } from './layout-shell';
@@ -8,103 +10,58 @@ const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
 });
 
-const outfit = Outfit({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-display',
   display: 'swap',
+  weight: ['400', '500', '600', '700', '800'],
 });
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
-
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kun-glassesweb.vercel.app'),
   title: {
-    default: 'KUN Glass & Aluminium — Premium Glass & Aluminium Solutions in Nashik',
+    default: 'KUN Glass & Aluminium | Premium Glass & Aluminium Works',
     template: '%s | KUN Glass & Aluminium',
   },
   description:
-    'KUN Glass & Aluminium delivers premium glass, aluminium, ACP cladding, partition, sliding windows and interior solutions across Nashik, Maharashtra since 2010.',
-  // NOTE: no root-level `alternates.canonical` here. Next.js inherits metadata
-  // from the root layout, so a '/' canonical would incorrectly point every
-  // child page (services, projects, about, ...) back at the homepage. Each
-  // page declares its own canonical, or relies on the resolved route path.
-  icons: { icon: '/logo.png' },
-  keywords: [
-    'glass and aluminium nashik',
-    'aluminium sliding windows',
-    'ACP cladding nashik',
-    'toughened glass',
-    'glass partition',
-    'KUN Glass and Aluminium',
-    'glass work maharashtra',
-    'aluminium facade',
-  ],
-  openGraph: {
-    type: 'website',
-    siteName: 'KUN Glass & Aluminium',
-    title: 'KUN Glass & Aluminium — Premium Glass & Aluminium Solutions',
-    description:
-      'One Stop Solution For Glass & Aluminium Works. Trusted since 2010 for premium residential, commercial and industrial projects in Nashik.',
-    url: '/',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'KUN Glass & Aluminium',
-    description:
-      'Premium glass and aluminium solutions for modern spaces — trusted since 2010.',
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large' },
+    'KUN Glass & Aluminium delivers premium glass and aluminium solutions for residential, commercial, and architectural projects.',
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
   },
 };
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
+  '@type': 'Organization',
   name: 'KUN Glass & Aluminium',
-  description: 'Premium glass and aluminium solutions for residential, commercial and industrial spaces.',
-  url: SITE_URL,
-  telephone: ['+919823097867', '+919595343528'],
-  email: 'kunglass@gmail.com',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: 'Lohkare Mala, Near Golden Universal School, Opposite Ceramic House Showroom, Behind Tuljai Hotel, Aurangabad-Takli Link Road',
-    addressLocality: 'Nashik',
-    addressRegion: 'Maharashtra',
-    postalCode: '422003',
-    addressCountry: 'IN',
-  },
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: 19.9975,
-    longitude: 73.7898,
-  },
-  areaServed: [
-    { '@type': 'City', name: 'Nashik' },
-    { '@type': 'State', name: 'Maharashtra' },
-  ],
-  foundingDate: '2010',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://kun-glassesweb.vercel.app',
+  logo: '/logo.png',
   sameAs: [],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" dir="ltr" suppressHydrationWarning className={`${inter.variable} ${outfit.variable}`}>
+    <html lang="en" dir="ltr" suppressHydrationWarning className={`${inter.variable} ${jakarta.variable}`}>
       <head>
-        <link rel="icon" href="/logo.png" type="image/jpeg" />
-        <meta name="theme-color" content="#0e1627" />
-        <script
+        <Script
+          id="kun-organization-jsonld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body suppressHydrationWarning className="min-h-screen font-sans">
+      <body suppressHydrationWarning className="min-h-screen font-sans bg-background text-text-primary antialiased">
         <Providers>
-          <LayoutShell>{children}</LayoutShell>
+          <Suspense>
+            <LayoutShell>{children}</LayoutShell>
+          </Suspense>
         </Providers>
       </body>
     </html>
