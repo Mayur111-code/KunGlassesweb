@@ -15,7 +15,7 @@ export function Spinner({ className, size = 'md' }: SpinnerProps) {
   return (
     <div
       className={cn(
-        'inline-block animate-spin rounded-full border-brand-orange border-t-transparent',
+        'inline-block animate-spin rounded-full border-bronze-500 border-t-transparent',
         sizes[size],
         className
       )}
@@ -27,13 +27,13 @@ export function Spinner({ className, size = 'md' }: SpinnerProps) {
 
 export function FullPageLoader({ label = 'Loading...' }: { label?: string }) {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 bg-background">
       <Spinner size="lg" />
-      <p className="text-sm text-navy-500">{label}</p>
+      <p className="text-[0.6875rem] uppercase tracking-[0.22em] text-steel-500">{label}</p>
     </div>
   );
 }
 
 export function ButtonSpinner() {
-  return <Spinner size="sm" className="border-white" />;
+  return <Spinner size="sm" className="border-current" />;
 }

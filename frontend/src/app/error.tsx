@@ -24,11 +24,11 @@ export default function GlobalRouteError({
   }, [error]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-navy-950 px-6">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-navy-900/60 px-6 py-10 text-center">
-        <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-brand-orange" aria-hidden="true" />
-        <h1 className="font-display text-xl font-bold text-white">Something went wrong</h1>
-        <p className="mt-3 text-sm leading-relaxed text-navy-300">
+    <main className="flex min-h-screen items-center justify-center bg-ink-950 px-6">
+      <div className="w-full max-w-md border border-white/10 bg-white/[0.04] px-7 py-10 text-center">
+        <AlertTriangle className="mx-auto mb-5 h-9 w-9 text-bronze-400" aria-hidden="true" />
+        <h1 className="type-h3 text-stone-50">Something went wrong</h1>
+        <p className="mt-3 text-sm leading-relaxed text-white/55">
           An unexpected error occurred while loading this page. Please try again, or get in touch with us
           if the problem continues.
         </p>
@@ -37,20 +37,20 @@ export default function GlobalRouteError({
           <button
             type="button"
             onClick={reset}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="inline-flex items-center justify-center gap-2 rounded-xs bg-bronze-500 px-5 py-3 text-sm font-medium text-ink-950 transition-colors hover:bg-bronze-400"
           >
             <RefreshCw className="h-4 w-4" aria-hidden="true" /> Try again
           </button>
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+            className="inline-flex items-center justify-center gap-2 rounded-xs border border-white/20 px-5 py-3 text-sm font-medium text-stone-50 transition-colors hover:bg-white/10"
           >
             <Home className="h-4 w-4" aria-hidden="true" /> Back to home
           </Link>
         </div>
 
         {error.digest ? (
-          <p className="mt-6 text-[11px] text-navy-400">
+          <p className="mt-6 text-[11px] text-white/55">
             Reference: <span className="font-mono">{error.digest}</span>
           </p>
         ) : null}

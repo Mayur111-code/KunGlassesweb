@@ -177,9 +177,52 @@ Admin mutations (POST/PUT/PATCH/DELETE) all require an authenticated, role-autho
 - [ ] Upload tested from Admin → Media
 - [ ] Images render on the public site
 
+## Image ownership
+
+ImageKit stores media in one flat library, so the media record itself does **not** record
+which entity an upload belongs to. Ownership is expressed only by which document stores
+the URL:
+
+| Owner | Field | Where it renders |
+| --- | --- | --- |
+| Site settings | `heroImages.home` | Homepage hero |
+| Site settings | `heroImages.about` | About page hero **and** the homepage About section |
+| Site settings | `heroImages.services` / `projects` / `clients` / `contact` | That page's hero |
+| Service | `featuredImage` | That service's card + detail hero |
+| Service | `gallery` | That service's detail gallery |
+| Project | `images[0]` | Project cover (grid + detail hero) |
+| Project | `images[1…]` | Project detail gallery |
+| Client | `logo` | Client logo only |
+
+**Rule:** a page or section image may only come from `SiteSettings`. No section may fall
+back to `services[0]`, `projects[0]` or a client logo. The helper
+`frontend/src/lib/section-images.ts` is the single entry point for this resolution — use
+it instead of writing ad-hoc fallbacks. This rule was introduced after a service upload
+silently replaced the homepage About image.
+
+## Design system
+
+- **Palette** — warm stone `#F8F7F5`, charcoal `#1F1F1F`, steel `#687280`,
+  architectural bronze `#B08D57`, muted sage `#9AA39A`, border `#E8E5E0`.
+  Tokens live in `frontend/src/app/globals.css` and are mapped into Tailwind
+  (`stone`, `ink`, `steel`, `bronze`, `sage`, `line`, `surface`).
+- **Typography** — Plus Jakarta Sans (display) and Inter (body), self-hosted from
+  `frontend/src/app/fonts/` via `next/font/local` (SIL OFL). Self-hosting keeps the build
+  hermetic — no request to `fonts.googleapis.com` is needed at build or runtime.
+- **Fluid type** — `.type-hero`, `.type-h1`, `.type-h2`, `.type-h3`, `.type-lead`
+  in `globals.css` use `clamp()` so headings scale from 320px to 1920px.
+- **Motion** — Framer Motion for component/section transitions (`MotionWrap`,
+  `StaggerContainer`), plus `ParallaxImage` and `TiltCard`. The hero word reveal is
+  CSS-only so server and client markup are identical. `MotionConfig reducedMotion="user"`
+  plus the global `prefers-reduced-motion` rule disable transforms for users who ask for it.
+  GSAP is intentionally not installed: Framer Motion covers every timeline on this site and
+  a second animation engine would add weight without a design benefit.
+
 ## Notes
 
 - Address, phone, email and social links are managed from **Admin → Settings**.
 - Project cover/gallery images are separate from global page heroes.
 - Both ImageKit uploads and external HTTPS image URLs are supported; galleries may mix both.
 - SMTP and ImageKit are optional: without them the site still runs (uploads disabled, notifications skipped).
+- The footer development credit ("Designed & Developed by SSS Grow Tech" →
+  https://www.sssgrowtech.co.in/) is a brand requirement and must not be removed.

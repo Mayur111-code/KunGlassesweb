@@ -2,16 +2,16 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { ArrowRight, GlassWater, CheckCircle2 } from 'lucide-react';
+import { ArrowUpRight, GlassWater } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
-import { SectionHeading } from '@/components/ui/SectionHeading';
-import { MotionWrap, StaggerContainer, StaggerItem } from '@/components/MotionWrap';
-import { FullPageLoader } from '@/components/ui/Spinner';
+import { PageHero } from '@/components/ui/PageHero';
+import { MotionWrap } from '@/components/MotionWrap';
 import { LoadError } from '@/components/ui/LoadState';
+import { CtaSection } from '@/components/home/CtaSection';
 import { servicesApi } from '@/services';
-import { getImageUrl, truncate } from '@/lib/utils';
+import { getSectionImage } from '@/lib/section-images';
+import { getImageUrl, cn } from '@/lib/utils';
 import { useSettings } from '@/lib/settings-context';
 import type { Service } from '@/types';
 
@@ -20,126 +20,162 @@ export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const heroImage = getImageUrl(settings?.heroImages?.services);
+
+  const heroImage = getSectionImage(settings, 'services');
 
   const loadServices = useCallback(() => {
     setLoading(true);
     setError(false);
-    servicesApi.getAll()
-      .then((res) => setServices(res.data ?? []))
+    servicesApi
+      .getAll()
+      .then((response) => setServices(response.data ?? []))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { loadServices(); }, [loadServices]);
+  useEffect(() => {
+    loadServices();
+  }, [loadServices]);
 
   return (
     <>
-      <section className="relative min-h-[40vh] flex items-center gradient-navy overflow-hidden">
-        {heroImage && <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover" aria-hidden />}
-        {heroImage && <div className="absolute inset-0 bg-navy-950/80" />}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
-        <Container className="relative z-10 py-32 sm:py-36">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-block rounded-full bg-brand-orange/20 border border-brand-orange/30 px-4 py-1.5 text-xs font-bold text-brand-light tracking-widest uppercase mb-6"
-          >
-            Our Services
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl lg:leading-[1.1] mb-6 max-w-3xl"
-          >
-            Premium Glass &{' '}
-            <span className="text-brand-orange">Aluminium Solutions</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg text-navy-100/80 max-w-2xl leading-relaxed"
-          >
-            From design to installation — we deliver complete solutions for residential, commercial and industrial spaces.
-          </motion.p>
-        </Container>
-      </section>
+      <PageHero
+        eyebrow="Services"
+        title={
+          <>
+            Glass &amp; aluminium,
+            <br className="hidden sm:block" /> detailed to the{' '}
+            <span className="text-bronze-300">millimetre.</span>
+          </>
+        }
+        description="From the first site survey to the final silicone line, every KUN service is engineered, fabricated and installed by one accountable team."
+        imageUrl={heroImage}
+        meta={<span>{loading ? 'Loading' : `${services.length} disciplines`}</span>}
+      >
+        <Button href="/contact" size="lg" variant="primary">
+          Discuss your requirement
+          <ArrowUpRight className="h-4 w-4" />
+        </Button>
+      </PageHero>
 
-      <section className="py-20 sm:py-28">
+      <section className="section bg-surface" aria-label="Service index">
         <Container>
+          <div className="flex items-end justify-between gap-6 border-b border-line pb-6">
+            <p className="type-eyebrow text-bronze-700">Service Index</p>
+            <p className="text-[0.6875rem] uppercase tracking-[0.2em] text-steel-500">
+              {loading ? 'Loading' : `${services.length} disciplines`}
+            </p>
+          </div>
+
           {loading ? (
-            <FullPageLoader label="Loading services..." />
+            <div className="mt-4 divide-y divide-line">
+              {[0, 1, 2].map((index) => (
+                <div key={index} className="grid gap-8 py-12 lg:grid-cols-12 lg:gap-14">
+                  <div className="space-y-4 lg:col-span-6">
+                    <div className="h-3 w-16 animate-pulse bg-stone-300" />
+                    <div className="h-8 w-3/4 animate-pulse bg-stone-300" />
+                    <div className="h-4 w-full animate-pulse bg-stone-200" />
+                    <div className="h-4 w-5/6 animate-pulse bg-stone-200" />
+                  </div>
+                  <div className="aspect-[16/10] animate-pulse bg-stone-200 lg:col-span-6" />
+                </div>
+              ))}
+            </div>
           ) : error ? (
-            <LoadError message="Our services could not be loaded. Please check your connection and try again." onRetry={loadServices} />
+            <div className="py-16">
+              <LoadError
+                message="Our services could not be loaded. Please check your connection and try again."
+                onRetry={loadServices}
+              />
+            </div>
           ) : services.length === 0 ? (
-            <div className="text-center py-20">
-              <GlassWater className="h-16 w-16 text-navy-200 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-navy-950 mb-2">No Services Available</h3>
-              <p className="text-navy-500">We are currently updating our services. Please check back soon.</p>
+            <div className="mt-10 flex flex-col items-center justify-center border border-dashed border-line py-24 text-center">
+              <GlassWater className="h-10 w-10 text-steel-300" aria-hidden />
+              <h2 className="mt-6 font-display text-2xl font-medium tracking-[-0.02em] text-ink-950">
+                Services are being updated
+              </h2>
+              <p className="mt-3 max-w-sm text-sm leading-relaxed text-steel-500">
+                Our team is preparing the latest service catalogue. Please check back shortly or
+                contact us directly.
+              </p>
+              <Button href="/contact" variant="outline" size="md" className="mt-6">
+                Contact us
+              </Button>
             </div>
           ) : (
-            <>
-              <MotionWrap className="mb-14">
-                <SectionHeading
-                  eyebrow="What We Offer"
-                  title="Our Services"
-                  description="Explore our comprehensive range of glass and aluminium solutions."
-                />
-              </MotionWrap>
-
-              <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.map((service) => (
-                  <StaggerItem key={service._id}>
-                    <Link href={`/services/${service.slug}`} className="group block h-full">
-                      <div className="h-full flex flex-col bg-white rounded-md shadow-card hover:shadow-card-hover transition-all duration-300 border border-navy-100/70 overflow-hidden group-hover:-translate-y-1">
-                        <div className="h-52 bg-gradient-to-br from-navy-900 to-navy-700 flex items-center justify-center relative overflow-hidden">
-                          {service.featuredImage ? (
-                            <img
-                              src={getImageUrl(service.featuredImage)}
-                              alt={service.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          ) : (
-                            <div className="text-center px-6">
-                              <GlassWater className="h-14 w-14 text-white/30 mx-auto mb-3" />
-                              <span className="text-sm text-white/50 font-medium">{service.title}</span>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-navy-950/60 to-transparent" />
-                        </div>
-                        <div className="p-5 flex flex-col flex-1">
-                          <h3 className="text-lg font-bold text-navy-950 mb-2 group-hover:text-brand-orange transition-colors">
-                            {service.title}
-                          </h3>
-                          <p className="text-sm text-navy-500 leading-relaxed mb-4 flex-1">
-                            {truncate(service.shortDescription, 150)}
-                          </p>
-                          {service.features.length > 0 && (
-                            <div className="space-y-1.5 mb-4">
-                              {service.features.slice(0, 3).map((feature) => (
-                                <div key={feature} className="flex items-center gap-2">
-                                  <CheckCircle2 className="h-3.5 w-3.5 text-brand-orange shrink-0" />
-                                  <span className="text-xs text-navy-600">{feature}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2 text-sm font-semibold text-brand-orange mt-auto">
-                            View Details <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-                          </div>
-                        </div>
+            <div className="divide-y divide-line">
+              {services.map((service, index) => (
+                <MotionWrap key={service._id} amount={0.12}>
+                  <Link
+                    href={`/services/${service.slug}`}
+                    className="group grid gap-8 py-10 lg:grid-cols-12 lg:gap-14 lg:py-16"
+                  >
+                    <div className={cn('lg:col-span-6', index % 2 === 1 && 'lg:order-last')}>
+                      <div className="flex items-baseline gap-4">
+                        <span className="type-eyebrow text-bronze-700">
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                        <span className="h-px flex-1 bg-line" aria-hidden />
                       </div>
-                    </Link>
-                  </StaggerItem>
-                ))}
-              </StaggerContainer>
-            </>
+
+                      <h2 className="type-h3 mt-6 text-ink-950 transition-colors duration-300 group-hover:text-bronze-700">
+                        {service.title}
+                      </h2>
+
+                      <p className="mt-4 max-w-xl text-[0.9375rem] leading-relaxed text-steel-500">
+                        {service.shortDescription}
+                      </p>
+
+                      {service.features?.length > 0 ? (
+                        <ul className="mt-6 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+                          {service.features.slice(0, 4).map((feature) => (
+                            <li
+                              key={feature}
+                              className="flex items-start gap-2.5 text-[0.8125rem] leading-snug text-ink-700"
+                            >
+                              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-bronze-500" aria-hidden />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+
+                      <span className="mt-8 inline-flex items-center gap-2 text-[0.8125rem] font-medium text-ink-900">
+                        View service
+                        <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
+                      </span>
+                    </div>
+
+                    <div className="lg:col-span-6">
+                      <div className="media-frame aspect-[16/10]">
+                        {service.featuredImage ? (
+                          <img
+                            src={getImageUrl(service.featuredImage)}
+                            alt={service.title}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-full w-full object-cover transition-transform duration-[1.1s] ease-arch group-hover:scale-[1.04]"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-ink-900">
+                            <GlassWater className="h-12 w-12 text-white/20" aria-hidden />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-ink-950/40 via-transparent to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
+                        <span className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center border border-white/25 text-white/80 transition-all duration-500 ease-arch group-hover:border-bronze-400 group-hover:bg-bronze-500 group-hover:text-ink-950">
+                          <ArrowUpRight className="h-4 w-4" aria-hidden />
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </MotionWrap>
+              ))}
+            </div>
           )}
         </Container>
       </section>
+
+      <CtaSection />
     </>
   );
 }

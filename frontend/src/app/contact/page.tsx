@@ -4,22 +4,16 @@ import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { PageHero } from '@/components/ui/PageHero';
-import { SectionHeading } from '@/components/ui/SectionHeading';
-import { MotionWrap, StaggerContainer, StaggerItem } from '@/components/MotionWrap';
+import { MotionWrap } from '@/components/MotionWrap';
 import { ContactForm } from '@/components/ContactForm';
 import { useSettings } from '@/lib/settings-context';
-import {
-  KUN_COMPANY_ADDRESS,
-  buildTelLink,
-  buildWhatsAppLink,
-  buildMailtoLink,
-  getImageUrl,
-} from '@/lib/utils';
+import { getSectionImage } from '@/lib/section-images';
+import { KUN_COMPANY_ADDRESS, buildMailtoLink, buildTelLink } from '@/lib/utils';
 
 export default function ContactPage() {
   const { settings, primaryPhone, primaryWhatsApp, primaryEmail, whatsappLink } = useSettings();
-  const addressLines = (settings?.address ?? KUN_COMPANY_ADDRESS).split('\n').filter(Boolean);
-  const heroImage = getImageUrl(settings?.heroImages?.contact);
+  const addressLines = (settings?.address ?? KUN_COMPANY_ADDRESS).split(/\r?\n/).filter(Boolean);
+  const heroImage = getSectionImage(settings, 'contact');
 
   const phoneLink = primaryPhone ? buildTelLink(primaryPhone.value) : null;
   const emailLink = primaryEmail ? buildMailtoLink(primaryEmail.value, 'Enquiry from Website') : null;
@@ -27,173 +21,173 @@ export default function ContactPage() {
   return (
     <>
       <PageHero
-        eyebrow="Contact us"
+        eyebrow="Contact"
         title={
           <>
-            Get in <span className="text-brand-light">touch</span>
+            Let&apos;s talk about
+            <br className="hidden sm:block" /> your <span className="text-bronze-300">project.</span>
           </>
         }
-        description="Have a project in mind? Contact us for a consultation and quote."
+        description="Send drawings, dimensions or an idea. We will respond with material guidance, timelines and a clear next step."
         imageUrl={heroImage}
-      />
+        meta={<span>Nashik · Maharashtra</span>}
+      >
+        <div className="flex flex-col gap-3 sm:flex-row">
+          {phoneLink ? (
+            <Button href={phoneLink} size="lg" variant="primary">
+              <Phone className="h-4 w-4" />
+              Call our team
+            </Button>
+          ) : null}
+          {whatsappLink ? (
+            <Button href={whatsappLink} size="lg" variant="outline-light">
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp us
+            </Button>
+          ) : null}
+        </div>
+      </PageHero>
 
-      <section className="section-padding">
+      <section className="section bg-surface" aria-label="Contact details and enquiry form">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-5 lg:gap-16">
-            <div className="lg:col-span-3">
-              <MotionWrap>
-                <h2 className="font-display text-2xl font-bold text-navy-950">Send us a message</h2>
-                <p className="mt-2 text-navy-500">We typically respond within one business day.</p>
-              </MotionWrap>
-              <div className="mt-8">
-                <ContactForm />
-              </div>
-            </div>
+          <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
+            <MotionWrap className="lg:col-span-5" amount={0.2}>
+              <p className="type-eyebrow text-bronze-700">Direct Lines</p>
+              <h2 className="type-h3 mt-4 max-w-sm text-ink-950">
+                Reach the right person, faster.
+              </h2>
+              <p className="mt-4 max-w-md text-[0.9375rem] leading-relaxed text-steel-500">
+                For quotations, site visits or material advice, use any of the channels below. We
+                reply within one business day.
+              </p>
 
-            <div className="lg:col-span-2">
-              <MotionWrap delay={0.1}>
-                <div className="space-y-5">
-                  <div className="rounded-lg border border-navy-100/80 bg-white p-6 shadow-sm">
-                    <h3 className="font-display text-lg font-bold text-navy-950">Contact details</h3>
-                    <div className="mt-5 space-y-4">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-navy-50 text-brand-orange">
-                          <MapPin className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium text-navy-400">Address</p>
-                          {addressLines.map((line, i) => (
-                            <p key={i} className={`text-sm ${i === 0 ? 'font-semibold text-navy-900' : 'text-navy-600'}`}>
-                              {line}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-                      {phoneLink && primaryPhone && (
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-navy-50 text-brand-orange">
-                            <Phone className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium text-navy-400">Phone</p>
-                            <a href={phoneLink} className="text-sm font-semibold text-navy-900 hover:text-brand-orange">
-                              {primaryPhone.value}
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                      {emailLink && primaryEmail && (
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-navy-50 text-brand-orange">
-                            <Mail className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium text-navy-400">Email</p>
-                            <a href={emailLink} className="text-sm font-semibold text-navy-900 hover:text-brand-orange">
-                              {primaryEmail.value}
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                      {whatsappLink && primaryWhatsApp && (
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-600">
-                            <MessageCircle className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium text-navy-400">WhatsApp</p>
-                            <a
-                              href={whatsappLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm font-semibold text-navy-900 hover:text-emerald-600"
-                            >
-                              {primaryWhatsApp.value}
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+              <ul className="mt-9 border-t border-line">
+                {phoneLink && primaryPhone ? (
+                  <li className="border-b border-line">
+                    <a href={phoneLink} className="group flex items-start gap-4 py-5">
+                      <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center border border-line text-bronze-700 transition-colors group-hover:border-bronze-500/60">
+                        <Phone className="h-4 w-4" aria-hidden />
+                      </span>
+                      <span>
+                        <span className="block text-[0.5625rem] uppercase tracking-[0.22em] text-steel-500">
+                          Phone
+                        </span>
+                        <span className="mt-1 block text-sm font-medium text-ink-900 transition-colors group-hover:text-bronze-700">
+                          {primaryPhone.value}
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                ) : null}
 
-                  <div className="flex flex-col gap-3">
-                    {phoneLink && (
-                      <a href={phoneLink}>
-                        <Button variant="primary" size="md" className="w-full">
-                          <Phone className="h-4 w-4" /> Call Now
-                        </Button>
-                      </a>
-                    )}
-                    {whatsappLink && (
-                      <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                        <Button
-                          variant="outline"
-                          size="md"
-                          className="w-full border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-500 hover:text-white"
+                {whatsappLink && primaryWhatsApp ? (
+                  <li className="border-b border-line">
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-start gap-4 py-5"
+                    >
+                      <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center border border-line text-emerald-700 transition-colors group-hover:border-emerald-500/50">
+                        <MessageCircle className="h-4 w-4" aria-hidden />
+                      </span>
+                      <span>
+                        <span className="block text-[0.5625rem] uppercase tracking-[0.22em] text-steel-500">
+                          WhatsApp
+                        </span>
+                        <span className="mt-1 block text-sm font-medium text-ink-900 transition-colors group-hover:text-emerald-700">
+                          {primaryWhatsApp.value}
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                ) : null}
+
+                {emailLink && primaryEmail ? (
+                  <li className="border-b border-line">
+                    <a href={emailLink} className="group flex items-start gap-4 py-5">
+                      <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center border border-line text-bronze-700 transition-colors group-hover:border-bronze-500/60">
+                        <Mail className="h-4 w-4" aria-hidden />
+                      </span>
+                      <span>
+                        <span className="block text-[0.5625rem] uppercase tracking-[0.22em] text-steel-500">
+                          Email
+                        </span>
+                        <span className="mt-1 block break-all text-sm font-medium text-ink-900 transition-colors group-hover:text-bronze-700">
+                          {primaryEmail.value}
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                ) : null}
+
+                <li>
+                  <div className="flex items-start gap-4 py-5">
+                    <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center border border-line text-bronze-700">
+                      <MapPin className="h-4 w-4" aria-hidden />
+                    </span>
+                    <span>
+                      <span className="block text-[0.5625rem] uppercase tracking-[0.22em] text-steel-500">
+                        Studio
+                      </span>
+                      <address className="mt-1 block whitespace-pre-line text-sm not-italic leading-relaxed text-ink-700">
+                        {addressLines.map((line, index) => (
+                          <span key={index} className="block">
+                            {line}
+                          </span>
+                        ))}
+                      </address>
+                      {settings?.googleMapsUrl ? (
+                        <a
+                          href={settings.googleMapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-3 inline-flex text-[0.6875rem] uppercase tracking-[0.16em] text-bronze-700 underline-offset-4 hover:underline"
                         >
-                          <MessageCircle className="h-4 w-4" /> WhatsApp Us
-                        </Button>
-                      </a>
-                    )}
+                          Open in Google Maps
+                        </a>
+                      ) : null}
+                    </span>
                   </div>
+                </li>
+              </ul>
+            </MotionWrap>
+
+            <MotionWrap className="lg:col-span-7" delay={0.1} amount={0.2}>
+              <div className="border border-line bg-white p-6 shadow-soft sm:p-9 lg:p-10">
+                <div className="flex items-start justify-between gap-6 border-b border-line pb-6">
+                  <div>
+                    <p className="type-eyebrow text-bronze-700">Enquiry</p>
+                    <h2 className="type-h3 mt-3 text-ink-950">Tell us about your project</h2>
+                  </div>
+                  <span className="hidden h-10 w-10 border border-bronze-500/40 sm:block" aria-hidden />
                 </div>
-              </MotionWrap>
-            </div>
+                <p className="mt-4 text-[0.8125rem] text-steel-500">
+                  Fields marked * are required. Your details are used only to respond to this
+                  enquiry.
+                </p>
+                <div className="mt-8">
+                  <ContactForm />
+                </div>
+              </div>
+            </MotionWrap>
           </div>
         </Container>
       </section>
 
-      <section className="section-padding bg-surface-muted">
+      <section className="section-tight border-t border-line surface-stone" aria-label="Service area">
         <Container>
-          <MotionWrap className="mb-12">
-            <SectionHeading
-              eyebrow="Quick connect"
-              title="Other ways to reach us"
-              description="Choose the method that works best for you."
-            />
-          </MotionWrap>
-
-          <StaggerContainer className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-3">
-            {phoneLink && primaryPhone && (
-              <StaggerItem>
-                <a href={phoneLink} className="block">
-                  <div className="rounded-lg border border-navy-100/80 bg-white p-6 text-center shadow-sm transition-shadow hover:shadow-card">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-brand-orange/10">
-                      <Phone className="h-6 w-6 text-brand-orange" />
-                    </div>
-                    <h3 className="text-sm font-bold text-navy-950">Call us</h3>
-                    <p className="mt-1 text-xs text-navy-500">{primaryPhone.value}</p>
-                  </div>
-                </a>
-              </StaggerItem>
-            )}
-            {whatsappLink && (
-              <StaggerItem>
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
-                  <div className="rounded-lg border border-navy-100/80 bg-white p-6 text-center shadow-sm transition-shadow hover:shadow-card">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-emerald-50">
-                      <MessageCircle className="h-6 w-6 text-emerald-600" />
-                    </div>
-                    <h3 className="text-sm font-bold text-navy-950">WhatsApp</h3>
-                    <p className="mt-1 text-xs text-navy-500">Chat with us</p>
-                  </div>
-                </a>
-              </StaggerItem>
-            )}
-            {emailLink && primaryEmail && (
-              <StaggerItem>
-                <a href={emailLink} className="block">
-                  <div className="rounded-lg border border-navy-100/80 bg-white p-6 text-center shadow-sm transition-shadow hover:shadow-card">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-sky-50">
-                      <Mail className="h-6 w-6 text-sky-600" />
-                    </div>
-                    <h3 className="text-sm font-bold text-navy-950">Email</h3>
-                    <p className="mt-1 text-xs text-navy-500">{primaryEmail.value}</p>
-                  </div>
-                </a>
-              </StaggerItem>
-            )}
-          </StaggerContainer>
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="type-eyebrow text-bronze-700">Service Area</p>
+              <p className="mt-3 max-w-xl font-display text-xl font-medium tracking-[-0.015em] text-ink-950">
+                Based in Nashik. Delivering across Maharashtra and beyond.
+              </p>
+            </div>
+            <Button href="/projects" variant="outline" size="md">
+              See completed work
+            </Button>
+          </div>
         </Container>
       </section>
     </>

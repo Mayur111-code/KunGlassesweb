@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { servicesApi, projectsApi, clientsApi } from '@/services';
 import { useSettings } from '@/lib/settings-context';
+import { getSectionImage } from '@/lib/section-images';
 import type { Service, Project, Client } from '@/types';
-import { getImageUrl } from '@/lib/utils';
 import { HeroSection } from '@/components/home/HeroSection';
 import { TrustStrip } from '@/components/home/TrustStrip';
 import { AboutSection } from '@/components/home/AboutSection';
@@ -23,32 +23,39 @@ export default function HomePage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [projectTotal, setProjectTotal] = useState(0);
   const [clientTotal, setClientTotal] = useState(0);
-  const [aboutImage, setAboutImage] = useState<string | undefined>();
+
+  /**
+   * Section imagery comes ONLY from the CMS site settings:
+   *   settings.heroImages.home  → hero
+   *   settings.heroImages.about → home About section
+   *
+   * The previous implementation derived the About image from the first service
+   * with a featured image (`list.find(...).featuredImage`). Any service upload
+   * therefore leaked into the About block. See `lib/section-images.ts` for the
+   * ownership rules that now apply to every section image.
+   */
+  const heroImage = getSectionImage(settings, 'home');
+  const aboutImage = getSectionImage(settings, 'about');
 
   useEffect(() => {
     servicesApi
       .getAll()
-      .then((r) => {
-        const list = r.data ?? [];
-        setServices(list.slice(0, 6));
-        const featured = list.find((s) => s.isFeatured && s.featuredImage) ?? list.find((s) => s.featuredImage);
-        if (featured?.featuredImage) setAboutImage(getImageUrl(featured.featuredImage));
-      })
+      .then((response) => setServices((response.data ?? []).slice(0, 6)))
       .catch(() => {});
 
     projectsApi
       .getAll()
-      .then((r) => {
-        const list = r.data ?? [];
+      .then((response) => {
+        const list = response.data ?? [];
         setProjectTotal(list.length);
-        setProjects(list.slice(0, 4));
+        setProjects(list.slice(0, 3));
       })
       .catch(() => {});
 
     clientsApi
       .getAll()
-      .then((r) => {
-        const list = r.data ?? [];
+      .then((response) => {
+        const list = response.data ?? [];
         setClientTotal(list.length);
         setClients(list.slice(0, 12));
       })
@@ -57,7 +64,7 @@ export default function HomePage() {
 
   return (
     <>
-      <HeroSection heroImage={settings ? getImageUrl(settings.heroImages?.home) : undefined} />
+      <HeroSection heroImage={heroImage} />
       <TrustStrip projectCount={projectTotal} clientCount={clientTotal} />
       <AboutSection image={aboutImage} />
       <ServicesSection services={services} />

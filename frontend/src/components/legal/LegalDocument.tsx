@@ -39,23 +39,23 @@ export function LegalDocument({
     <>
       <PageHero eyebrow={eyebrow} title={title} description={description} />
 
-      <section className="section-padding bg-white">
+      <section className="section bg-surface">
         <Container>
           <div className="mx-auto max-w-3xl">
-            <div className="mb-12 flex flex-col gap-4 border-b border-navy-100 pb-8 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-navy-600">
-                <span className="font-semibold text-navy-950">Last Updated:</span>{' '}
-                <span className="text-brand-orange">{lastUpdated}</span>
+            <div className="mb-12 flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-steel-500">
+                <span className="font-medium text-ink-950">Last Updated:</span>{' '}
+                <span className="text-bronze-700">{lastUpdated}</span>
               </p>
 
-              <span className="inline-flex w-fit items-center rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold uppercase tracking-wider text-navy-600">
+              <span className="inline-flex w-fit items-center rounded-xs border border-line px-3 py-1 text-[0.625rem] font-medium uppercase tracking-[0.18em] text-steel-500">
                 Sample content
               </span>
             </div>
 
-            <div className="mb-12 rounded-lg border border-navy-100 bg-surface-muted p-5 sm:p-6">
-              <p className="text-sm leading-relaxed text-navy-600">
-                <span className="font-semibold text-navy-950">Placeholder notice.</span> The text on
+            <div className="mb-12 border border-line bg-stone-50 p-5 sm:p-6">
+              <p className="text-sm leading-relaxed text-steel-500">
+                <span className="font-medium text-ink-950">Placeholder notice.</span> The text on
                 this page is sample content prepared for development. Replace every section below
                 with the company&rsquo;s legally reviewed wording before publishing.
               </p>
@@ -66,13 +66,13 @@ export function LegalDocument({
                 <li key={section.heading} className="scroll-mt-28">
                   <div className="flex items-baseline gap-3">
                     <span
-                      className="font-display text-sm font-bold tabular-nums text-brand-orange"
+                      className="font-display text-sm font-medium tabular-nums text-bronze-700"
                       aria-hidden="true"
                     >
                       {String(index + 1).padStart(2, '0')}
                     </span>
 
-                    <h2 className="font-display text-2xl font-bold tracking-tight text-navy-950 sm:text-3xl">
+                    <h2 className="type-h3 text-ink-950">
                       {section.heading}
                     </h2>
                   </div>
@@ -80,18 +80,18 @@ export function LegalDocument({
                   {section.paragraphs?.map((paragraph) => (
                     <p
                       key={paragraph}
-                      className="mt-4 text-base leading-relaxed text-navy-600 first:mt-4 sm:text-[1.0625rem]"
+                      className="mt-4 text-base leading-[1.8] text-steel-500 first:mt-4 sm:text-[1.0625rem]"
                     >
                       {paragraph}
                     </p>
                   ))}
 
                   {section.bullets?.length ? (
-                    <ul className="mt-5 space-y-3">
+                    <ul className="mt-5 space-y-3 border-l border-line pl-5">
                       {section.bullets.map((bullet) => (
-                        <li key={bullet} className="flex gap-3 text-base leading-relaxed text-navy-600">
+                        <li key={bullet} className="flex gap-3 text-base leading-[1.8] text-steel-500">
                           <span
-                            className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-orange"
+                            className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-bronze-500"
                             aria-hidden="true"
                           />
                           <span>{bullet}</span>

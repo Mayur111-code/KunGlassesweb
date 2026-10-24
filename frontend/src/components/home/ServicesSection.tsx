@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, GlassWater } from 'lucide-react';
+import { ArrowUpRight, GlassWater } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { SectionHeading } from '@/components/ui/SectionHeading';
-import { MotionWrap, StaggerContainer, StaggerItem } from '@/components/MotionWrap';
+import { StaggerContainer, StaggerItem } from '@/components/MotionWrap';
 import { getImageUrl, truncate } from '@/lib/utils';
 import type { Service } from '@/types';
 
@@ -17,63 +17,70 @@ export function ServicesSection({ services }: ServicesSectionProps) {
   if (services.length === 0) return null;
 
   return (
-    <section className="section-padding" id="services" aria-label="Our services">
+    <section className="section bg-surface" id="services" aria-label="Our services">
       <Container>
-        <MotionWrap className="mb-14">
+        <div className="flex flex-col gap-8 border-b border-line pb-10 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading
             align="left"
-            eyebrow="What we do"
-            title="Premium services for every space"
-            description="Complete glass and aluminium solutions \u2014 from design to installation \u2014 for residential, commercial and industrial environments."
+            eyebrow="Capabilities"
+            title="Precision services, engineered to fit."
+            description="Complete glass and aluminium solutions — designed, fabricated and installed by one accountable team."
           />
-        </MotionWrap>
+          <Button href="/services" variant="outline" size="md" className="shrink-0 self-start lg:self-auto">
+            All services
+            <ArrowUpRight className="h-4 w-4" />
+          </Button>
+        </div>
 
-        <StaggerContainer className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {services.map((service) => (
-            <StaggerItem key={service._id}>
+        <StaggerContainer className="mt-12 grid gap-x-8 gap-y-12 md:grid-cols-2 lg:gap-y-16">
+          {services.map((service, index) => (
+            <StaggerItem
+              key={service._id}
+              className={index % 2 === 1 ? 'md:mt-16' : undefined}
+            >
               <Link href={`/services/${service.slug}`} className="group block h-full">
-                <article className="card-editorial flex h-full flex-col overflow-hidden">
-                  <div className="relative aspect-[16/10] overflow-hidden bg-navy-900">
+                <article className="flex h-full flex-col">
+                  <div className="media-frame aspect-[4/3]">
                     {service.featuredImage ? (
                       <img
                         src={getImageUrl(service.featuredImage)}
                         alt={service.title}
-                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                         loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover transition-transform duration-[1.1s] ease-arch group-hover:scale-[1.045]"
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center">
-                        <GlassWater className="h-14 w-14 text-white/25" aria-hidden />
+                      <div className="flex h-full w-full items-center justify-center bg-ink-900">
+                        <GlassWater className="h-12 w-12 text-white/20" aria-hidden />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-950/75 via-navy-950/20 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
-                    <span className="absolute bottom-4 left-4 right-4 font-display text-xl font-semibold leading-tight text-white">
-                      {service.title}
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-ink-950/55 via-transparent to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-95" />
+
+                    <span className="absolute left-5 top-5 font-display text-[0.6875rem] tracking-[0.24em] text-white/70">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+
+                    <span className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center border border-white/25 text-white/80 transition-all duration-500 ease-arch group-hover:border-bronze-400 group-hover:bg-bronze-500 group-hover:text-ink-950">
+                      <ArrowUpRight className="h-4 w-4" aria-hidden />
                     </span>
                   </div>
-                  <div className="flex flex-1 flex-col p-6">
-                    <p className="flex-1 text-sm leading-relaxed text-navy-600">
-                      {truncate(service.shortDescription, 140)}
-                    </p>
-                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-orange transition-colors group-hover:text-brand-dark">
-                      Explore service
-                      <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                    </span>
+
+                  <div className="mt-5 flex flex-1 items-start justify-between gap-6 border-t border-line pt-5">
+                    <div>
+                      <h3 className="type-h3 text-ink-950 transition-colors duration-300 group-hover:text-bronze-700">
+                        {service.title}
+                      </h3>
+                      <p className="mt-3 max-w-md text-[0.875rem] leading-relaxed text-steel-500">
+                        {truncate(service.shortDescription, 150)}
+                      </p>
+                    </div>
                   </div>
                 </article>
               </Link>
             </StaggerItem>
           ))}
         </StaggerContainer>
-
-        <div className="mt-12">
-          <Link href="/services">
-            <Button variant="outline" size="md" className="group">
-              View all services
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </Link>
-        </div>
       </Container>
     </section>
   );

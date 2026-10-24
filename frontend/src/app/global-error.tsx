@@ -17,7 +17,7 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#0e1627',
+          backgroundColor: '#141413',
           color: '#ffffff',
           fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
           padding: '1.5rem',
@@ -25,7 +25,7 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
       >
         <div style={{ maxWidth: '28rem', textAlign: 'center' }}>
           <h1 style={{ fontSize: '1.375rem', fontWeight: 700, margin: 0 }}>Something went wrong</h1>
-          <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', lineHeight: 1.6, color: '#a8b6cc' }}>
+          <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', lineHeight: 1.6, color: '#b8b8b0' }}>
             The website hit an unexpected error. Please refresh the page, or contact us if this keeps
             happening.
           </p>
@@ -35,12 +35,12 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
             style={{
               marginTop: '1.5rem',
               padding: '0.625rem 1.25rem',
-              borderRadius: '0.5rem',
+              borderRadius: '2px',
               border: 'none',
-              backgroundColor: '#f97316',
-              color: '#ffffff',
+              backgroundColor: '#b08d57',
+              color: '#141413',
               fontSize: '0.875rem',
-              fontWeight: 600,
+              fontWeight: 500,
               cursor: 'pointer',
             }}
           >
