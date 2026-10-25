@@ -2,6 +2,14 @@
 
 Full-stack website with an admin CMS for **KUN Glass & Aluminium**, a glass, aluminium and ACP fabrication company in Nashik, Maharashtra.
 
+## Hostinger backend deployment
+
+For `api.kunglass.in`, see [the verified Hostinger deployment guide](backend/HOSTINGER.md).
+Use root `backend`, Node 22.x, build `npm ci --include=dev && npm run build`,
+and entry `dist/server.js` (or start command `npm start`). The existing backend
+scripts are correct; `Build command: none` and entry `server.js` are not.
+The older Render-specific instructions below do not configure Hostinger.
+
 ## Stack
 
 | Layer    | Tech                                                     |
