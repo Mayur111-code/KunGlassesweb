@@ -10,6 +10,7 @@ interface ParallaxImageProps {
   className?: string;
   imgClassName?: string;
   priority?: boolean;
+  position?: 'relative' | 'absolute';
   /** Vertical travel in px across the viewport pass. Keep it subtle. */
   strength?: number;
 }
@@ -28,6 +29,7 @@ export function ParallaxImage({
   className,
   imgClassName,
   priority = false,
+  position = 'relative',
   strength = 24,
 }: ParallaxImageProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -35,7 +37,7 @@ export function ParallaxImage({
   const y = useTransform(scrollYProgress, [0, 1], [-strength, strength]);
 
   return (
-    <div ref={ref} className={cn('relative overflow-hidden', className)}>
+    <div ref={ref} className={cn('overflow-hidden', className)} style={{ position }}>
       <motion.img
         data-parallax
         src={src}

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
+import { RecordImage } from '@/components/ui/RecordImage';
 import { PageHero } from '@/components/ui/PageHero';
 import { MotionWrap, StaggerContainer, StaggerItem } from '@/components/MotionWrap';
 import { FullPageLoader } from '@/components/ui/Spinner';
@@ -33,6 +34,9 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     if (!slug) return;
+    setLoading(true);
+    setError(false);
+    setLightboxIndex(null);
     projectsApi
       .getBySlug(slug)
       .then((response) => setProject(response.data.project))
@@ -121,8 +125,6 @@ export default function ProjectDetailPage() {
         eyebrow={project.category || 'Project'}
         title={project.title}
         description={[project.clientName, project.location].filter(Boolean).join(' · ')}
-        imageUrl={cover || undefined}
-        className="!min-h-[66svh] sm:!min-h-[72svh]"
         meta={<span>{project.completionYear ? `Completed ${project.completionYear}` : 'KUN Project'}</span>}
       >
         <Link
@@ -153,7 +155,11 @@ export default function ProjectDetailPage() {
       <section className="section bg-surface">
         <Container>
           <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
-            <MotionWrap className="lg:col-span-8" amount={0.15}>
+            <div className="min-w-0 lg:col-span-8">
+              <div className="media-frame mb-8 aspect-[4/3]">
+                <RecordImage src={cover} alt={project.title} loading="eager" fetchPriority="high"
+                  decoding="async" className="h-full w-full object-cover" />
+              </div>
               <p className="type-eyebrow text-bronze-700">Overview</p>
               <h2 className="type-h2 mt-5 max-w-2xl text-ink-950">
                 Thoughtful execution for a considered space.
@@ -181,7 +187,7 @@ export default function ProjectDetailPage() {
                   </p>
                 </div>
               ) : null}
-            </MotionWrap>
+            </div>
 
             <MotionWrap className="lg:col-span-4" delay={0.1} amount={0.15}>
               <div className="border border-line bg-white p-6 shadow-soft sm:p-7">
@@ -231,7 +237,7 @@ export default function ProjectDetailPage() {
                     className="group media-frame aspect-[4/3] w-full text-left"
                     aria-label={`Open gallery image ${index + 1} of ${gallery.length}`}
                   >
-                    <img
+                    <RecordImage
                       src={image}
                       alt={`${project.title} gallery image ${index + 1}`}
                       loading="lazy"
@@ -266,7 +272,7 @@ export default function ProjectDetailPage() {
                 <Link key={item._id} href={`/projects/${item.slug}`} className="group block">
                   <div className="media-frame aspect-[4/3]">
                     {item.images?.[0] ? (
-                      <img
+                      <RecordImage
                         src={getImageUrl(item.images[0])}
                         alt={item.title}
                         loading="lazy"
@@ -332,7 +338,7 @@ export default function ProjectDetailPage() {
             </button>
 
             <figure className="max-h-[86vh] max-w-6xl" onClick={(event) => event.stopPropagation()}>
-              <img
+              <RecordImage
                 src={gallery[lightboxIndex]}
                 alt={`${project.title} gallery image ${lightboxIndex + 1}`}
                 className="max-h-[82vh] w-auto max-w-full object-contain"

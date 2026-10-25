@@ -75,8 +75,8 @@ export const getImageUrl = (image: ImageLike, fallback = ''): string => {
     return image.trim() || fallback;
   }
 
-  const directUrl = image.url ?? image.secureUrl ?? '';
-  if (directUrl.trim()) return directUrl.trim();
+  const directUrl = [image.url, image.secureUrl].find((value) => value?.trim());
+  if (directUrl) return directUrl.trim();
 
   if (image.filePath) {
     const endpoint = (process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT ?? 'https://ik.imagekit.io').replace(/\/$/, '');
