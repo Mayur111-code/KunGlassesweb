@@ -46,7 +46,8 @@ export function PageHero({
             alt=""
             priority
             strength={30}
-            className="absolute inset-0 h-full w-full"
+            position="absolute"
+            className="inset-0 h-full w-full"
             imgClassName="opacity-70"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/40" />

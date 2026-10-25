@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ArrowUpRight, Check, GlassWater, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
-import { PageHero } from '@/components/ui/PageHero';
+import { RecordImage } from '@/components/ui/RecordImage';
 import { MotionWrap, StaggerContainer, StaggerItem } from '@/components/MotionWrap';
 import { FullPageLoader } from '@/components/ui/Spinner';
 import { CtaSection } from '@/components/home/CtaSection';
@@ -81,7 +81,7 @@ export default function ServiceDetailPage() {
   }
 
   const image = getImageUrl(service.featuredImage);
-  const gallery = (service.gallery ?? []).filter(Boolean);
+  const gallery = (service.gallery ?? []).map((item) => getImageUrl(item)).filter(Boolean);
   const paragraphs = service.description
     .split(/\n+/)
     .map((paragraph) => paragraph.trim())
@@ -89,27 +89,29 @@ export default function ServiceDetailPage() {
 
   return (
     <>
-      <PageHero
-        eyebrow="Service"
-        title={service.title}
-        description={service.shortDescription}
-        imageUrl={image || undefined}
-        meta={<span>Service · KUN Glass &amp; Aluminium</span>}
-      >
-        <div className="flex flex-wrap items-center gap-3">
-          <Button href="/contact" size="lg" variant="primary">
-            Request a quote
-            <ArrowUpRight className="h-4 w-4" />
-          </Button>
-          <Link
-            href="/services"
-            className="inline-flex items-center gap-2 text-[0.75rem] uppercase tracking-[0.16em] text-white/55 transition-colors hover:text-white"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-            All services
-          </Link>
-        </div>
-      </PageHero>
+      <section className="bg-ink-950 pb-14 pt-28 text-stone-50 sm:pb-20 sm:pt-36">
+        <Container>
+          <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
+            <div className="media-frame aspect-[4/3] min-w-0">
+              <RecordImage src={image} alt={service.title} loading="eager" fetchPriority="high"
+                decoding="async" className="h-full w-full object-cover" />
+            </div>
+            <div className="min-w-0">
+              <p className="type-eyebrow text-bronze-300">Service</p>
+              <h1 className="type-h2 mt-5 break-words">{service.title}</h1>
+              <p className="mt-6 text-base leading-relaxed text-stone-300">{service.shortDescription}</p>
+              <div className="mt-8 flex flex-wrap items-center gap-5">
+                <Button href="/contact" size="lg" variant="primary">
+                  Request a quote <ArrowUpRight className="h-4 w-4" />
+                </Button>
+                <Link href="/services" className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-stone-300 hover:text-white">
+                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden /> All services
+                </Link>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
 
       <section className="section bg-surface">
         <Container>
@@ -178,7 +180,7 @@ export default function ServiceDetailPage() {
                           className="group media-frame aspect-[4/3] text-left"
                           aria-label={`Open ${service.title} gallery image ${index + 1}`}
                         >
-                          <img
+                          <RecordImage
                             src={src}
                             alt={`${service.title} detail ${index + 1}`}
                             loading="lazy"
@@ -251,7 +253,7 @@ export default function ServiceDetailPage() {
                 <Link key={item._id} href={`/services/${item.slug}`} className="group block">
                   <div className="media-frame aspect-[16/10]">
                     {item.featuredImage ? (
-                      <img
+                      <RecordImage
                         src={getImageUrl(item.featuredImage)}
                         alt={item.title}
                         loading="lazy"
@@ -299,7 +301,7 @@ export default function ServiceDetailPage() {
             >
               <X className="h-5 w-5" />
             </button>
-            <img
+            <RecordImage
               src={lightbox}
               alt={service.title}
               className="max-h-[88vh] max-w-full object-contain"
