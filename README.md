@@ -5,9 +5,10 @@ Full-stack website with an admin CMS for **KUN Glass & Aluminium**, a glass, alu
 ## Hostinger backend deployment
 
 For `api.kunglass.in`, see [the verified Hostinger deployment guide](backend/HOSTINGER.md).
-Use root `backend`, Node 22.x, build `npm ci --include=dev && npm run build`,
-and entry `dist/server.js` (or start command `npm start`). The existing backend
-scripts are correct; `Build command: none` and entry `server.js` are not.
+Use root `backend`, Node 22.x, npm, and entry `dist/server.js` (or start command
+`npm start`). The Hostinger Express preset runs `npm install`; the backend's
+`postinstall` now compiles TypeScript automatically, with build dependencies
+included through `backend/.npmrc`. No custom build-command field is required.
 The older Render-specific instructions below do not configure Hostinger.
 
 ## Stack

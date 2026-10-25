@@ -14,13 +14,19 @@ applications. Set the backend service's root directory to **`backend`**.
 - Existing package scripts are already correct: `build: tsc`,
   `start: node dist/server.js`, `main: dist/server.js`.
 
-## Required hPanel changes
+## Hostinger Express preset (install-only deployment)
 
-The current `Build command: none` / `Entry file: server.js` settings cannot run
-this TypeScript application. Installing dependencies does not compile it.
-No source-code wrapper or duplicate `server.js` is needed.
+The observed Hostinger Express settings expose only package manager and entry
+file, and run `npm install` without a separate build step. This repository now
+supports that flow directly:
 
-In the Node.js application's Git deployment/build settings, use:
+- `package.json` runs `npm run build` in `postinstall`.
+- `.npmrc` sets `include=dev`, so TypeScript and required declaration packages
+  are installed even when `NODE_ENV=production` or npm is passed `--omit=dev`.
+- Compilation failures fail installation rather than deploying missing output.
+- `dist/` remains generated output; no duplicate source entry is necessary.
+
+Keep these hPanel settings:
 
 | Setting | Value |
 | --- | --- |
@@ -28,23 +34,21 @@ In the Node.js application's Git deployment/build settings, use:
 | Production branch | `main` |
 | Application root | `backend` |
 | Node.js | `22.x` |
-| Build command (custom) | `npm ci --include=dev && npm run build` |
+| Package manager | `npm` |
+| Entry file | `dist/server.js` |
 | Start command, if provided | `npm start` |
-| Entry file, if required | `dist/server.js` |
 
-All commands and the entry-file path above are relative to the **backend root**.
-If the UI has a separate install command, set it to `npm ci --include=dev` and
-set the build command to `npm run build`. TypeScript is a dev dependency, so it
-must be installed during the build even with `NODE_ENV=production`.
-Do not run `npm ci --omit=dev` before compilation.
+No editable build command is required for this preset. After these changes are
+merged into `main`, redeploy the latest commit (not the earlier `46ab35f`). The
+install log must show `postinstall`, `npm run build`, then `tsc` before entry-file
+validation. `Build command: none` is acceptable **only because postinstall now
+compiles the application**. Do not disable npm lifecycle scripts (`ignore-scripts`)
+or override `include=dev`; the install-time build needs both.
 
-Save the settings, retain the existing environment variables, and redeploy.
-The entry is generated during the build; it is not expected to exist in Git.
-If the UI refuses to select a generated file or still reports “Build command:
-none”, inspect its custom build/output settings or contact Hostinger support
-with the source/output paths above. Do not rename or copy an unrelated file to
-bypass entry validation. These dashboard settings cannot be changed by this
-repository's package scripts alone; no Hostinger deployment manifest was found.
+Paths are relative to the backend root. A host that offers separate build
+commands can still use `npm ci` and `npm run build`; compilation may run twice
+but is safe. Dev dependencies are intentionally retained for this install-only
+build path; any runtime-pruning strategy needs a separate build stage.
 
 ## Environment (keep existing secrets)
 
@@ -77,7 +81,10 @@ Do not paste secrets into build logs or commit a real `.env`.
 
 Local verification on Node 22.22.3:
 
-1. `npm ci --include=dev` — passed, lockfile unchanged.
+1. `NODE_ENV=production npm ci` — passed; postinstall compiles automatically.
+   Also removed generated `dist/` and ran `NODE_ENV=production npm install
+   --omit=dev`: `.npmrc` keeps build dependencies included and recreates
+   `dist/server.js` successfully. `npm run lint` passed.
 2. `npm run build` — passed; `dist/server.js` exists.
 3. `npm start` — compiled entry loads; fails with required `JWT_SECRET` absent.
 4. With disposable local runtime settings — reaches MongoDB connection, then
